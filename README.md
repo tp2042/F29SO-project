@@ -5,20 +5,17 @@ Here's quick documentation about frontend part of this project
 ...
 
 you sure you want to know?<br>
-▒▒██████████████████▒▒<br>
-▒▐███▀▀▀▀▀██▀▀▀▀▀███▌▒<br>
-▒███▒▒▌■▐▒▒▒▒▌■▐▒▒███▒<br>
-▒▐██▄▒▀▀▀▒▒▒▒▀▀▀▒▄██▌▒<br>
-▒▒▀████▒▄▄▒▒▄▄▒████▀▒▒<br>
-▒▒▐███▒▒▒▀▒▒▀▒▒▒███▌▒▒<br>
-▒▒███▒▒▒▒▒▒▒▒▒▒▒▒███▒▒<br>
-▒▒▒██▒▒▀▀▀▀▀▀▀▀▒▒██▒▒▒<br>
-▒▒▒▐██▄▒▒▒▒▒▒▒▒▄██▌▒▒▒<br>
-░░▄▄▓▀▀░░░░░░░▒▒▒▀▀▀▓▄░<br>
-░▐▓▒░░▒▒▒▒▒▒▒▒▒░▒▒▒▒▒▒▓<br>
-░▐▓░█░░░░░░░░▄░░░░░░░░█░<br>
-░▐▓░█░░░(◐)░░▄█▄░░(◐)░░░█<br>
-░▐▓░░▀█▄▄▄▄█▀░▀█▄▄▄▄█▀░<br>
+╱ ╱▔▔▔▔▔▔▔╲<br>
+ ╱         ╲<br>
+ ▏      ╭  ▕<br>
+▕╭━╮╮╭━╮┣╯ ▕<br>
+▕┃▕▋┊┃▕▋╰╮  ▏<br>
+▕╰━╭╮╰━╯ ╰┈ ▏<br>
+▕▂╮┗┛ ╭┳┳┳╯▕<br>
+^v^ ┳┳┳┳┳┫╰┃▂╱<br>
+^v^▕╋╋╋╋┫┃▕╯<br>
+^v^▕┻┻┻┻┻╯▕<br>
+^v^▕▂▂▂▂▂▂╱<br>
 
 ok then<br>
 
@@ -41,3 +38,16 @@ Vir: Home, settings <br>
 ---
 
 if you have any doubts, contact any member of our team (not only frontend team) to clarify any moments
+
+A\_\_\_\_A<br>
+|・ㅅ・| Meow<br>
+|っ　ｃ|<br>
+|　　　|<br>
+|　　　|<br>
+|　　　|<br>
+|　　　|<br>
+|　　　|<br>
+|　　　| I Hope<br>
+|　　　| You have<br>
+|　　　| A nice Weekend! :3<br>
+U ￣ ￣ U<br>
