@@ -5,12 +5,12 @@ Here's quick documentation about frontend part of this project
 ...
 
 you sure you want to know?
-▒▒██████████████████▒▒
-▒▐███▀▀▀▀▀██▀▀▀▀▀███▌▒
-▒███▒▒▌■▐▒▒▒▒▌■▐▒▒███▒
-▒▐██▄▒▀▀▀▒▒▒▒▀▀▀▒▄██▌▒
-▒▒▀████▒▄▄▒▒▄▄▒████▀▒▒
-▒▒▐███▒▒▒▀▒▒▀▒▒▒███▌▒▒
+▒▒██████████████████▒▒\n
+▒▐███▀▀▀▀▀██▀▀▀▀▀███▌▒\n
+▒███▒▒▌■▐▒▒▒▒▌■▐▒▒███▒\n
+▒▐██▄▒▀▀▀▒▒▒▒▀▀▀▒▄██▌▒\n
+▒▒▀████▒▄▄▒▒▄▄▒████▀▒▒\n
+▒▒▐███▒▒▒▀▒▒▀▒▒▒███▌▒▒\n
 ▒▒███▒▒▒▒▒▒▒▒▒▒▒▒███▒▒
 ▒▒▒██▒▒▀▀▀▀▀▀▀▀▒▒██▒▒▒
 ▒▒▒▐██▄▒▒▒▒▒▒▒▒▄██▌▒▒▒
@@ -33,9 +33,9 @@ So basically people who worked on front end is:
 
 ---
 
-Nibras: Login and signup, Moods, zones
-Alex: Energy analysis, Devices
-Vir: Home, settings
+Nibras: Login and signup, Moods, zones \n
+Alex: Energy analysis, Devices \n
+Vir: Home, settings \n
 
 ---
 
