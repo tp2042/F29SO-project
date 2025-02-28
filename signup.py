@@ -8,7 +8,7 @@ supabase_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 response = create_client(supabase_URL, supabase_KEY)
 
 def sign_up(email: str, password: str):
-    """Registers a new user without assigning a role yet."""
+    #Registers a new user without assigning a role yet.
     supabase = create_client(supabase_URL, supabase_KEY)
 
     # Check if email already exists
