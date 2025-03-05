@@ -33,3 +33,4 @@ function App() {
 }
 
 export default App
+/Users/virwadwani/Documents/GitHub/F29SO-project/react-native-app
