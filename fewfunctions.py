@@ -104,15 +104,169 @@ def update_device(device_id):
 
 #-------------------------------- DELETE DEVICE (DELETE) -----------------------------------#
 
+@app.route('/delete_device/<int:device_id>', methods=['DELETE'])
+def delete_device(device_id):
+    try:
+        # Attempt to delete the device with the given device_id
+        response = supabase.table("devices").delete().eq("device_id", device_id).execute()
+
+        # Check if the device was found and deleted
+        if response.data:
+            return jsonify({"Device Deletion": "Successful"}), 200
+        else:
+            return jsonify({"Error": "Device not found"}), 404
+
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
+
 #-------------------------------------------------------------------------------------------#
 
 
 #--------------------------------- DEVICE DETAILS (GET) ------------------------------------#
 
+# get status of all devices
+@app.route('/get_device', methods=['GET'])
+def get_all_devices():
+    try:
+        response = supabase.table("devices").select("*").execute()
+        return jsonify(response.data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# get status of a specific device (by device_id)
+@app.route('/get_device/<int:device_id>', methods=['GET'])
+def get_device(device_id):
+    try:
+        response = (
+            supabase.table("devices")
+            .select("*")
+            .eq("device_id", device_id)
+            .single()
+            .execute()
+        )
+
+        return jsonify(response.data), 200
+    except Exception as e:
+        return jsonify({"Error":"Device not found"}), 404
+
 #-------------------------------------------------------------------------------------------#
 
 
 #----------------------------- DEVICE HEALTH CHECK (POST) ----------------------------------#
+
+@app.route('/add_devicefault', methods=['POST'])
+def add_fault():
+    # Extract data from the request body
+    data = request.json
+
+    # Prepare the fault data to be inserted into the table
+    device_id = data.get("device_id")
+    fault_description = data.get("fault_description")
+    intensity = data.get("intensity")
+    resolved = data.get("resolved", False)  # Default to False if not provided
+
+    # Check if all necessary data is provided
+    if not data or not device_id or not fault_description or not intensity:
+        return jsonify({"Error": "Missing required fields"}), 404
+
+    try:
+        # Insert the fault data into the Device_Faults table
+        response = supabase.table("device_faults").insert({
+            "device_id": device_id,
+            "fault_description": fault_description,
+            "intensity": intensity,
+            "resolved": resolved
+        }).execute()
+
+        # Check if the insert was successful
+        if response.data:
+            return jsonify({"Fault Report": "Successfull", "fault_id": response.data[0]["fault_id"]}), 201
+        else:
+            return jsonify({"Fault Report": "Failed"}), 404
+
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
+
+#-------------------------------------------------------------------------------------------#
+
+
+#----------------------------- UPDATE DEVICE HEALTH (PUT) ----------------------------------#
+
+@app.route('/update_devicefault/<int:fault_id>', methods=['PUT'])
+def update_fault(fault_id):
+    try:
+        # Extract JSON data from request
+        data = request.json
+
+        # Ensure there is data to update
+        if not data:
+            return jsonify({"Error": "No Data found"}), 400
+
+        # Attempt to update the device
+        response = supabase.table("device_faults").update(data).eq("fault_id", fault_id).execute()
+
+        # Check if update was successful
+        if response.data:
+            return jsonify({"Fault Data": "Updated Successfully", "Updated Data": response.data}), 200
+        else:
+            return jsonify({"Fault Data": "Updated Unsuccessfully", "Error": "Device Fault not found or no changes made"}), 404
+
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
+
+#-------------------------------------------------------------------------------------------#
+
+
+#--------------------------------- ADD ROOM (POST) ------------------------------------------#
+
+@app.route('/add_room', methods=['POST'])
+def add_room():
+    try:
+        # Extract JSON data from the request
+        data = request.json
+
+        household_id = data.get("household_id")
+        room_id = data.get("room_id")
+        room_name = data.get("room_name")
+
+        # Ensure required fields are provided
+        if not data or not household_id or not room_id or not room_name:
+            return jsonify({"Room Addition": "Failed", "Error": "room_name, room_id and household_id haven't been provided"}), 404
+
+        # Insert the room into the database
+        response = supabase.table("rooms").insert({
+            "household_id": household_id,
+            "room_id": room_id,
+            "room_name": room_name,
+        }).execute()
+
+        # Check if the insertion was successful
+        if response.data:
+            return jsonify({"Room Data": "Addition Successfull", "Room Data": response.data}), 200
+        else:
+            return jsonify({"Room Data": "Addition Failed", "Error": response.error}), 500
+
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
+#-------------------------------------------------------------------------------------------#
+
+
+#-------------------------------- DELETE ROOM (DELETE) -------------------------------------#
+
+@app.route('/delete_room/<int:room_id>', methods=['DELETE'])
+def delete_room(room_id):
+    try:
+        # Attempt to delete the device with the given device_id
+        response = supabase.table("rooms").delete().eq("room_id", room_id).execute()
+
+        # Check if the device was found and deleted
+        if response.data:
+            return jsonify({"Room Deletion": "Successful"}), 200
+        else:
+            return jsonify({"Error": "Room not found"}), 404
+
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
 
 #-------------------------------------------------------------------------------------------#
 
