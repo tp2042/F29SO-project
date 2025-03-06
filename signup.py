@@ -7,88 +7,168 @@ supabase_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 response = create_client(supabase_URL, supabase_KEY)
 
+#SIGNUP FUNCTION
 def sign_up(email: str, password: str):
-    #Registers a new user without assigning a role yet.
-    supabase = create_client(supabase_URL, supabase_KEY)
+    """Registers a new user with email and password."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
 
-    # Check if email already exists
-    existing_user = supabase.table("users").select("email").eq("email", email).execute()
+    # Check if the email is already registered
+    existing_user = supabase_client.table("users").select("*").eq("email", email).execute()
     if existing_user.data:
-        return {"status": "error", "message": "Email already exists."}
+        return {"error": "Email already exists"}
 
-    # Create user account
-    response = supabase.auth.sign_up({"email": email, "password": password})
+    # Sign up the user in Supabase authentication
+    auth_response = supabase_client.auth.sign_up({"email": email, "password": password})
+
+    if "error" in auth_response:
+        return {"error": "Sign-up failed"}
+
+    # Get user ID and store in database
+    user_id = auth_response["user"]["id"]
+    supabase_client.table("users").insert({"user_id": user_id, "email": email, "role": None, "house_id": None}).execute()
+
+    return {"success": "User registered successfully. Please choose a role (Home Manager or Home User)"}
+
+
+# LOGIN FUNCTION
+def login(email: str, password: str):
+    """Logs in a user and retrieves their role and house details."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
+
+    # Authenticate the user
+    auth_response = supabase_client.auth.sign_in_with_password({"email": email, "password": password})
+
+    if "error" in auth_response:
+        return {"error": "Invalid email or password"}
+
+    # Retrieve user details from the database
+    user_id = auth_response["user"]["id"]
+    user_data = supabase_client.table("users").select("*").eq("user_id", user_id).execute()
+
+    if not user_data.data:
+        return {"error": "User not found"}
+
+    user_info = user_data.data[0]
+    role = user_info["role"]
+    house_id = user_info["house_id"]
+
+    # Fetch house details if the user is in a house
+    houses = []
+    if house_id:
+        house_data = supabase_client.table("houses").select("*").eq("house_id", house_id).execute()
+        houses = house_data.data
+
+    return {
+        "success": "Login successful",
+        "user_id": user_id,
+        "role": role,
+        "house_id": house_id,
+        "houses": houses
+    }
+
+#USER LOGOUT
+def logout():
+    """Logs out the current user."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
+    response = supabase_client.auth.sign_out()
+    
     if "error" in response:
-        return {"status": "error", "message": "Registration failed."}
+        return {"error": "Logout failed"}
+    
+    return {"success": "User logged out successfully"}
 
-    user_id = response.user.id
+#RESET PASSWORD
+def reset_password(email: str):
+    """Sends a password reset email."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
+    response = supabase_client.auth.reset_password_for_email(email)
 
-    # Save user in DB without a role yet
-    user_data = {"id": user_id, "email": email, "role": None, "house_id": None}
-    supabase.table("users").insert(user_data).execute()
+    if "error" in response:
+        return {"error": "Failed to send reset email"}
 
-    return {"status": "success", "message": "Signup successful. Choose a role next.", "user_id": user_id}
+    return {"success": "Password reset email sent"}
 
+#UPDATE ACCOUNT
+def update_account(user_id: str, new_email: str = None, new_password: str = None):
+    """Updates the user's email or password."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
+
+    update_data = {}
+    if new_email:
+        update_data["email"] = new_email
+    if new_password:
+        update_data["password"] = new_password
+
+    if not update_data:
+        return {"error": "No updates provided"}
+
+    response = supabase_client.auth.update_user(update_data)
+
+    if "error" in response:
+        return {"error": "Failed to update account"}
+
+    return {"success": "Account updated successfully"}
+
+#DELETE ACCOUNT
+def delete_account(user_id: str):
+    """Deletes a user from the database and authentication system."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
+
+    # Delete from authentication
+    response = supabase_client.auth.admin.delete_user(user_id)
+
+    if "error" in response:
+        return {"error": "Failed to delete account"}
+
+    # Delete user from database
+    supabase_client.table("users").delete().eq("user_id", user_id).execute()
+
+    return {"success": "Account deleted successfully"}
+
+#CHOOSING ROLE
 def choose_role(user_id: str, role: str):
-    """Allows the user to choose their role (Home Manager or Home User)."""
-    supabase = create_client(supabase_URL, supabase_KEY)
+    """Sets the user's role."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
 
     if role not in ["Home Manager", "Home User"]:
-        return {"status": "error", "message": "Invalid role selected."}
+        return {"error": "Invalid role"}
 
-    # Update user role
-    response = supabase.table("users").update({"role": role}).eq("id", user_id).execute()
+    response = supabase_client.table("users").update({"role": role}).eq("user_id", user_id).execute()
 
-    return {"status": "success", "message": f"Role set to {role}.", "role": role}
+    return {"success": f"Role set to {role}"}
 
+#CREATE HOUSE
 def create_house(manager_id: str, house_name: str):
-    """Creates a new house with a random unique ID for a Home Manager."""
-    supabase = create_client(supabase_URL, supabase_KEY)
+    """Creates a house and assigns a unique ID."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
 
-    # Ensure user is a Home Manager
-    user = supabase.table("users").select("role").eq("id", manager_id).execute()
-    if not user.data or user.data[0]["role"] != "Home Manager":
-        return {"status": "error", "message": "Only Home Managers can create a house."}
+    # Ensure the user is a Home Manager
+    user_data = supabase_client.table("users").select("role").eq("user_id", manager_id).execute()
+    if not user_data.data or user_data.data[0]["role"] != "Home Manager":
+        return {"error": "Only Home Managers can create a house"}
 
-    # Generate a new unique house ID
-    house_id = generate_unique_house_id()
+    # Generate a unique house ID
+    house_id = f"H-{random.randint(1000, 9999)}"
 
-    # Insert new house into DB
-    house_data = {"house_id": house_id, "owner_id": manager_id, "house_name": house_name}
-    supabase.table("houses").insert(house_data).execute()
+    # Insert house data
+    supabase_client.table("houses").insert({"house_id": house_id, "owner_id": manager_id, "house_name": house_name}).execute()
 
-    # Update Home Manager's house_id in DB
-    supabase.table("users").update({"house_id": house_id}).eq("id", manager_id).execute()
+    # Update user's house ID
+    supabase_client.table("users").update({"house_id": house_id}).eq("user_id", manager_id).execute()
 
-    return {"status": "success", "message": "House created successfully.", "house_id": house_id}
+    return {"success": "House created successfully", "house_id": house_id}
 
-
-def generate_unique_house_id():
-    """Generates a unique H-ID for a house."""
-    while True:
-        house_id = f"H-{random.randint(1000, 9999)}"
-        existing_house = supabase.table("houses").select("house_id").eq("house_id", house_id).execute()
-        if not existing_house.data:
-            return house_id
-
+#JOIN HOUSE
 def join_house(user_id: str, house_id: str):
-    """Allows a Home User to join an existing house using a valid H-ID."""
-    supabase = create_client(supabase_URL, supabase_KEY)
+    """Allows a Home User to join an existing house."""
+    supabase_client = supabase.create_client("your_supabase_url", "your_supabase_key")
 
     # Ensure house exists
-    house = supabase.table("houses").select("house_id").eq("house_id", house_id).execute()
+    house = supabase_client.table("houses").select("*").eq("house_id", house_id).execute()
     if not house.data:
-        return {"status": "error", "message": "Invalid house ID."}
+        return {"error": "Invalid house ID"}
 
-    # Update user with the house ID
-    response = supabase.table("users").update({"house_id": house_id}).eq("id", user_id).execute()
+    # Update user's house ID
+    response = supabase_client.table("users").update({"house_id": house_id}).eq("user_id", user_id).execute()
 
-    return {"status": "success", "message": "Successfully joined the house."}
-
-
-response = sign_up("tushithaprakash@gmail.com", "mypassword123", 19)
-print(response)
-
-
-
-
+    return {"success": "Successfully joined the house"}
