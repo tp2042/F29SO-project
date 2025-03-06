@@ -57,7 +57,7 @@ def create_house(manager_id: str, house_name: str):
     house_data = {"house_id": house_id, "owner_id": manager_id, "house_name": house_name}
     supabase.table("houses").insert(house_data).execute()
 
-    # Update Home Manager's house_id
+    # Update Home Manager's house_id in DB
     supabase.table("users").update({"house_id": house_id}).eq("id", manager_id).execute()
 
     return {"status": "success", "message": "House created successfully.", "house_id": house_id}
