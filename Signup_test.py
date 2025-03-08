@@ -1,4 +1,4 @@
-from supabase import create_client
+from supabase import create_client, Client
 from flask import Flask, request, jsonify
 import os
 import random
@@ -7,9 +7,9 @@ app = Flask(__name__)
 
 supabase_URL = "https://aycgaggcginkdlbwskgg.supabase.co"
 supabase_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5Y2dhZ2djZ2lua2RsYndza2dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTY1NjQsImV4cCI6MjA1NTUzMjU2NH0.NLkx-mJEr5ydeQUVo410mALxGF0Qg5Go4zOO98I15f0"
-response = create_client(supabase_URL, supabase_KEY)
+supabase_client = create_client(supabase_URL, supabase_KEY)
 
-#SIGNUP FUNCTION
+# SIGNUP FUNCTION
 @app.route('/signup', methods=['POST'])
 def sign_up():
     data = request.get_json()
@@ -22,8 +22,6 @@ def sign_up():
 
 def sign_up_user(email: str, password: str):
     """Registers a new user with email and password."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
-
     # Check if the email is already registered
     existing_user = supabase_client.table("users").select("*").eq("email", email).execute()
     if existing_user.data:
@@ -32,16 +30,17 @@ def sign_up_user(email: str, password: str):
     # Sign up the user in Supabase authentication
     auth_response = supabase_client.auth.sign_up({"email": email, "password": password})
 
-    if "error" in auth_response:
-        return {"error": "Sign-up failed"}
+    # Check if the response contains an error field
+    if auth_response.get("error"):
+        return {"error": auth_response["error"]["message"]}
 
     # Get user ID and store in database
-    user_id = auth_response["user"]["id"]
+    user_id = auth_response.get("user").get("id")
     supabase_client.table("users").insert({"user_id": user_id, "email": email, "role": None, "house_id": None}).execute()
 
     return {"success": "User registered successfully. Please choose a role (Home Manager or Home User)"}
 
-#LOGIN FUNCTION
+# LOGIN FUNCTION
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -54,16 +53,15 @@ def login():
 
 def login_user(email: str, password: str):
     """Logs in a user and retrieves their role and house details."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
-
     # Authenticate the user
     auth_response = supabase_client.auth.sign_in_with_password({"email": email, "password": password})
 
-    if "error" in auth_response:
-        return {"error": "Invalid email or password"}
+    # Check if the response contains an error field
+    if auth_response.get("error"):
+        return {"error": auth_response["error"]["message"]}
 
     # Retrieve user details from the database
-    user_id = auth_response["user"]["id"]
+    user_id = auth_response.get("user").get("id")
     user_data = supabase_client.table("users").select("*").eq("user_id", user_id).execute()
 
     if not user_data.data:
@@ -87,7 +85,7 @@ def login_user(email: str, password: str):
         "houses": houses
     }
 
-#LOGOUT FUNCTION
+# LOGOUT FUNCTION
 @app.route('/logout', methods=['POST'])
 def logout():
     # Call your logout function
@@ -96,15 +94,14 @@ def logout():
 
 def logout_user():
     """Logs out the current user."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
     response = supabase_client.auth.sign_out()
     
-    if "error" in response:
-        return {"error": "Logout failed"}
+    if response.get("error"):
+        return {"error": response["error"]["message"]}
     
     return {"success": "User logged out successfully"}
 
-#RESET PASSWORD
+# RESET PASSWORD
 @app.route('/reset_password', methods=['POST'])
 def reset_password():
     data = request.get_json()
@@ -116,7 +113,8 @@ def reset_password():
 
 def reset_user_password(email: str):
     """Sends a password reset email."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
+    # Removed redundant supabase client initialization
+    # supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
     response = supabase_client.auth.reset_password_for_email(email)
 
     if "error" in response:
@@ -124,7 +122,7 @@ def reset_user_password(email: str):
 
     return {"success": "Password reset email sent"}
 
-#UPDATE ACCOUNT
+# UPDATE ACCOUNT
 @app.route('/update_account', methods=['PUT'])
 def update_account():
     data = request.get_json()
@@ -138,7 +136,8 @@ def update_account():
 
 def update_user_account(user_id: str, new_email: str = None, new_password: str = None):
     """Updates the user's email or password."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
+    # Removed redundant supabase client initialization
+    # supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
 
     update_data = {}
     if new_email:
@@ -156,7 +155,7 @@ def update_user_account(user_id: str, new_email: str = None, new_password: str =
 
     return {"success": "Account updated successfully"}
 
-#DELETE ACCOUNT
+# DELETE ACCOUNT
 @app.route('/delete_account', methods=['DELETE'])
 def delete_account():
     data = request.get_json()
@@ -168,7 +167,8 @@ def delete_account():
 
 def delete_user_account(user_id: str):
     """Deletes a user from the database and authentication system."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
+    # Removed redundant supabase client initialization
+    # supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
 
     # Delete from authentication
     response = supabase_client.auth.admin.delete_user(user_id)
@@ -181,7 +181,7 @@ def delete_user_account(user_id: str):
 
     return {"success": "Account deleted successfully"}
 
-#CHOOSING ROLE
+# CHOOSING ROLE
 @app.route('/choose_role', methods=['POST'])
 def choose_role():
     data = request.get_json()
@@ -194,7 +194,8 @@ def choose_role():
 
 def choose_user_role(user_id: str, role: str):
     """Sets the user's role."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
+    # Removed redundant supabase client initialization
+    # supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
 
     if role not in ["Home Manager", "Home User"]:
         return {"error": "Invalid role"}
@@ -203,7 +204,7 @@ def choose_user_role(user_id: str, role: str):
 
     return {"success": f"Role set to {role}"}
 
-#CREATE HOUSE
+# CREATE HOUSE
 @app.route('/create_house', methods=['POST'])
 def create_house():
     data = request.get_json()
@@ -216,7 +217,8 @@ def create_house():
 
 def create_new_house(manager_id: str, house_name: str):
     """Creates a house and assigns a unique ID."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
+    # Removed redundant supabase client initialization
+    # supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
 
     # Ensure the user is a Home Manager
     user_data = supabase_client.table("users").select("role").eq("user_id", manager_id).execute()
@@ -234,7 +236,7 @@ def create_new_house(manager_id: str, house_name: str):
 
     return {"success": "House created successfully", "house_id": house_id}
 
-#JOIN HOUSE
+# JOIN HOUSE
 @app.route('/join_house', methods=['POST'])
 def join_house():
     data = request.get_json()
@@ -247,7 +249,8 @@ def join_house():
 
 def join_existing_house(user_id: str, house_id: str):
     """Allows a Home User to join an existing house."""
-    supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
+    # Removed redundant supabase client initialization
+    # supabase_client = supabase.create_client(supabase_URL, supabase_KEY)
 
     # Ensure house exists
     house = supabase_client.table("houses").select("*").eq("house_id", house_id).execute()
