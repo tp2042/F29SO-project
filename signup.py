@@ -1,4 +1,4 @@
-from supabase import create_client
+from supabase import create_client, Client
 from flask import Flask, request, jsonify
 import os
 import random
