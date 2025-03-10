@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 export default function RegistrationScreen() {
   const router = useRouter();
   const [gender, setGender] = useState(null);
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -82,7 +84,8 @@ export default function RegistrationScreen() {
             <TextInput style={styles.input} keyboardType="numeric" />
           </View>
           
-          <TouchableOpacity style={styles.signUpButton}>
+          <TouchableOpacity style={styles.signUpButton}
+          onPress={() => navigation.navigate("IndexTabs")}>
             <Text style={styles.signUpButtonText}>Sign up</Text>
           </TouchableOpacity>
         </View>

@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -28,7 +30,8 @@ export default function LoginScreen() {
           <TextInput style={styles.input} secureTextEntry />
         </View>
         
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity style={styles.loginButton}
+        onPress={() => navigation.navigate('IndexTabs')}>
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
         
@@ -40,7 +43,7 @@ export default function LoginScreen() {
         
         <TouchableOpacity 
           style={styles.signUpButton}
-          onPress={() => router.push('/registration')}
+          onPress={() => navigation.navigate('Registration')}
         >
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
