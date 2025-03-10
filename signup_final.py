@@ -43,7 +43,8 @@ def register():
     date_of_birth = data.get('date_of_birth')
     role = data.get('role')  # Get role from request data
     response = sign_up(email, password, date_of_birth, role)
-    return jsonify(response)    
+    return jsonify(response)
+ 
 
 # LOGIN FUNCTION
 def login(email: str, password: str):
@@ -170,9 +171,21 @@ def delete_account_route():
     response = delete_account(user_uuid)
     return jsonify(response)
 
+@app.route('/create_house', methods=['POST'])
+def create_house_route():
+    data = request.get_json()
+    manager_uuid = data.get('manager_id')
+    house_name = data.get('house_name')
+    
+    print("Received manager_uuid:", manager_uuid)
+    print("Received house_name:", house_name)
+    
+    response = create_house(manager_uuid, house_name)
+    return jsonify(response)
+
 # CREATE HOUSE FUNCTION
 def create_house(manager_uuid: str, house_name: str):
-    """Creates a house and assigns a unique ID."""
+    """Creates a house, assigns a unique ID, and adds 3 default rooms."""
     user_data = supabase_client.table("users").select("role").eq("user_uuid", manager_uuid).execute()
     if not user_data.data or user_data.data[0]["role"] != "Home Manager":
         return {"error": "Only Home Managers can create a house"}
@@ -182,34 +195,45 @@ def create_house(manager_uuid: str, house_name: str):
     supabase_client.table("houses").insert({"house_id": house_id, "owner_id": manager_uuid, "house_name": house_name}).execute()
     supabase_client.table("users").update({"house_id": house_id}).eq("user_uuid", manager_uuid).execute()
 
-    return {"success": "House created successfully", "house_id": house_id}
+    # Adding 3 default rooms to the house
+    rooms = [
+        {"room_id": str(uuid.uuid4()), "house_id": house_id, "room_name": "Living Room"},
+        {"room_id": str(uuid.uuid4()), "house_id": house_id, "room_name": "Kitchen"},
+        {"room_id": str(uuid.uuid4()), "house_id": house_id, "room_name": "Bedroom"}
+    ]
 
-@app.route('/create_house', methods=['POST'])
-def create_house_route():
-    data = request.get_json()
-    manager_uuid = data.get('manager_uuid')
-    house_name = data.get('house_name')
-    response = create_house(manager_uuid, house_name)
-    return jsonify(response)
+    for room in rooms:
+        supabase_client.table("rooms").insert(room).execute()
 
-# JOIN HOUSE FUNCTION
-def join_house(user_uuid: str, house_id: str):
-    """Allows a Home User to join an existing house."""
-    house = supabase_client.table("houses").select("*").eq("house_id", house_id).execute()
-    if not house.data:
-        return {"error": "Invalid house ID"}
+    return {"success": "House created successfully with default rooms", "house_id": house_id}
 
-    response = supabase_client.table("users").update({"house_id": house_id}).eq("user_uuid", user_uuid).execute()
-
-    return {"success": "Successfully joined the house"}
 
 @app.route('/join_house', methods=['POST'])
 def join_house_route():
     data = request.get_json()
-    user_uuid = data.get('user_uuid')
-    house_id = data.get('house_id')
-    response = join_house(user_uuid, house_id)
+    user_uuid = data.get('user_id')
+    h_id = data.get('house_id')  # Use h_id since it's a VARCHAR identifier
+
+    print("Received user_uuid:", user_uuid)
+    print("Received h_id:", h_id)
+    
+    response = join_house(user_uuid, h_id)
     return jsonify(response)
+
+# JOIN HOUSE FUNCTION
+def join_house(user_uuid: str, h_id: str):
+    """Allows a Home User to join an existing household."""
+    household = supabase_client.table("households").select("*").eq("h_id", h_id).execute()  # Use correct column name
+    
+    if not household.data:
+        return {"error": "Invalid household ID"}
+
+    response = supabase_client.table("users").update({"house_id": h_id}).eq("user_uuid", user_uuid).execute()
+
+    return {"success": "Successfully joined the household"}
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
