@@ -1,61 +1,66 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, StyleSheet, registerCallableModule } from 'react-native';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+
+//Importing Screens
+import MoodProfilesScreen from './moodProfiles';
+import MasterBedroomScreen from './masterBedroom';
+import DeviceScreen from './device';
+import SettingsScreen from './settings';
+import HomeScreen from './Home';
+import LoginScreen from './login';
+import RegistrationScreen from './registration';
+
 import { useState } from 'react';
 
+const Tab = createBottomTabNavigator();
+
 export default function IndexScreen() {
-  const router = useRouter();
   const [isPressed, setIsPressed] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Home</Text>
-      
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, isPressed && styles.buttonPressed]}
-          onPressIn={() => setIsPressed(true)}
-          onPressOut={() => setIsPressed(false)}
-          onPress={() => router.push('/device')}
-        >
-          <Text style={styles.buttonText}>Go to Device Page</Text>
-        </TouchableOpacity>
+    <><NavigationIndependentTree><NavigationContainer>
+      <Tab.Navigator screenOptions={({ route }: { route: any }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = 'home-outline';
+          } else if (route.name === 'Settings') {
+            iconName = 'settings-outline';
+          } else if (route.name === 'Mood') {
+            iconName = 'happy-outline';
+          } else if (route.name === 'Devices') {
+            iconName = 'bulb-outline';
+          } else if (route.name === 'Rooms') {
+            iconName = 'bed-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarStyle: {
+          backgroundColor: '#8B5CF6',
+          height: '8%',
+          paddingLeft: '3%',
+          paddingRight: '3%',
+        },
+        tabBarActiveTintColor: 'yellow',
+        tabBarInactiveTintColor: 'white',
+        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold',},
+      })}>
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Rooms" component={MasterBedroomScreen} />
+        <Tab.Screen name="Devices" component={DeviceScreen} />
+        <Tab.Screen name="Mood" component={MoodProfilesScreen} />
+        <Tab.Screen name="Settings" component={SettingsScreen} />
+
+        //Login and registration screen here just for checking will remove later
+        {/*<Tab.Screen name="registration" component={RegistrationScreen} />
+        <Tab.Screen name="Login" component={LoginScreen} />*/}
         
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/masterBedroom')}
-        >
-          <Text style={styles.buttonText}>Master Bedroom</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/airConditioning')}
-        >
-          <Text style={styles.buttonText}>Air Conditioning</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/moodProfiles')}
-        >
-          <Text style={styles.buttonText}>Mood Profiles</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/login')}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/registration')}
-        >
-          <Text style={styles.buttonText}>Registration</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </Tab.Navigator>
+    </NavigationContainer></NavigationIndependentTree></>
   );
 }
 
