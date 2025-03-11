@@ -1,12 +1,21 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
-  const navigation = useNavigation();
+
+  const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    // TODO: Add actual authentication logic here
+    router.push('/Home');
+  };
 
   return (
     <View style={styles.container}>
@@ -21,17 +30,31 @@ export default function LoginScreen() {
         </View>
         
         <View style={styles.formGroup}>
-          <Text style={styles.label}>login</Text>
-          <TextInput style={styles.input} />
+          <Text style={styles.label}>Email</Text>
+          <TextInput 
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
         </View>
         
         <View style={styles.formGroup}>
-          <Text style={styles.label}>password</Text>
-          <TextInput style={styles.input} secureTextEntry />
+          <Text style={styles.label}>Password</Text>
+          <TextInput 
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+          />
         </View>
         
-        <TouchableOpacity style={styles.loginButton}
-        onPress={() => navigation.navigate('IndexTabs')}>
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={handleLogin}
+        >
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
         
@@ -43,7 +66,7 @@ export default function LoginScreen() {
         
         <TouchableOpacity 
           style={styles.signUpButton}
-          onPress={() => navigation.navigate('Registration')}
+          onPress={() => router.push('/Home')}
         >
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>

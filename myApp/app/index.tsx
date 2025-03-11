@@ -22,7 +22,7 @@ function TabNavigator() {
   return (
     <Tab.Navigator screenOptions={({ route }: { route: any }) => ({
       tabBarIcon: ({ color, size }) => {
-        let iconName;
+        let iconName: string = '';
 
         if (route.name === 'Home') {
           iconName = 'home-outline';
@@ -36,7 +36,7 @@ function TabNavigator() {
           iconName = 'bed-outline';
         }
 
-        return <Ionicons name={iconName} size={size} color={color} />;
+        return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
       },
       tabBarStyle: {
         backgroundColor: '#8B5CF6',
