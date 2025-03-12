@@ -3,6 +3,7 @@ import { NavigationContainer, NavigationIndependentTree } from '@react-navigatio
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ThemeProvider } from "./ThemeContext"; 
 
 //Importing Screens
 import MoodProfilesScreen from './moodProfiles';
@@ -20,6 +21,7 @@ const Stack = createStackNavigator();
 
 function TabNavigator() {
   return (
+    <ThemeProvider>
     <Tab.Navigator screenOptions={({ route }: { route: any }) => ({
       tabBarIcon: ({ color, size }) => {
         let iconName;
@@ -54,6 +56,7 @@ function TabNavigator() {
       <Tab.Screen name="Mood" component={MoodProfilesScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
+    </ThemeProvider>
   )
 }
 export default function IndexScreen() {

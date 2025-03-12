@@ -3,30 +3,36 @@ import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
+import { useTheme } from "./ThemeContext";
 
 
 const screenWidth = Dimensions.get("window").width;
 
+
 export default function HomeScreen() {
     const navigation = useNavigation();
     const [temperature, setTemperature] = useState(22);
+    const {isDarkMode} = useTheme();
+    const backgroundColor = isDarkMode ? "black" : "#fff";
+    const textColor = isDarkMode ? "#fff" : "#000";
+    const rooms = isDarkMode ? darkModeRooms : lightModeRooms;
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
             <TouchableOpacity>
                 <Ionicons name="help-circle-outline" size={28} color="#6A5AE0" />
             </TouchableOpacity>
             <View style={styles.header}>
                 <View>
-                    <Text style={styles.greeting}>Hey, <Text style={styles.boldText}>Tushu 👋</Text></Text>
-                    <Text style={styles.weatherText}>Weather outside is 999°C, hot outside</Text>
+                    <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>Tushu 👋</Text></Text>
+                    <Text style={[styles.weatherText, { color: isDarkMode ? "#fff" : "#000" }]}>Weather outside is 999°C, hot outside</Text>
                 </View>
                 <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
             </View>
 
-            <View style={styles.tempControl}>
-                <Text style={styles.sectionTitle}>Master Temperature Control</Text>
-                <Text>{temperature}°C</Text>
+            <View style={[styles.tempControl, {backgroundColor: backgroundColor}]}>
+                <Text style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Master Temperature Control</Text>
+                <Text style={{ color: isDarkMode ? "#fff" : "#000" }}>{temperature}°C</Text>
                 <Slider
                     style={styles.slider}
                     minimumValue={0}
@@ -40,8 +46,8 @@ export default function HomeScreen() {
             </View>
 
             {/* Devices */}
-            <View style={styles.deviceGrid}>
-                <Text style={styles.sectionTitle}> Devices</Text>
+            <View style={[styles.deviceGrid, {backgroundColor: backgroundColor}]}>
+                <Text style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}> Devices</Text>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deviceScroll}>
                     {devices.map((device, index) => (
                         <TouchableOpacity key={index} style={[styles.deviceCard, {backgroundColor: device.isPressed ? "#8B5CF6" : "#e8e8e8"}]} >
@@ -79,11 +85,18 @@ const devices = [
     { name: "Robo", icon: "hardware-chip-outline", isPressed: false }
 ];
 
-const rooms = [
+const lightModeRooms = [
     { name: "Bathroom", bgColor: "#DCC7FF" },
     { name: "Kitchen", bgColor: "#B8E4F0" },
     { name: "Living Room", bgColor: "#A3E4D7" },
     { name: "Bedroom", bgColor: "#AED6F1" }
+];
+
+const darkModeRooms = [
+    { name: "Bathroom", bgColor: "#7D5CD3" }, 
+    { name: "Kitchen", bgColor: "#4DA6C3" },  
+    { name: "Living Room", bgColor: "#3DA98F" }, 
+    { name: "Bedroom", bgColor: "#4A90E2" }   
 ];
 
 const styles = StyleSheet.create({
