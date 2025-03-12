@@ -1,191 +1,211 @@
-import React from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import styled from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
+import Slider from "@react-native-community/slider";
 
-// Styled Components
-const Container = styled.SafeAreaView`
-    flex: 1;
-    background-color: #f5f5f5;
-    padding: 20px;
-`;
 
-const Header = styled.View`
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-`;
-
-const ProfileImage = styled.Image`
-    width: 50px;
-    height: 50px;
-    border-radius: 25px;
-    border: 2px solid #ddd;
-`;
-
-const WeatherText = styled.Text`
-    font-size: 14px;
-    color: #777;
-`;
-
-const SectionTitle = styled.Text`
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 5px;
-`;
-
-const DeviceGrid = styled.View`
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 10px;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 20px;
-    
-`;
-
-const DeviceCard = styled.TouchableOpacity`
-    background-color: #e8e8e8;
-    width: 22%;
-    padding: 15px;
-    border-radius: 10px;
-    align-items: center;
-    margin: 5px;
-`;
-
-const DeviceText = styled.Text`
-    font-size: 15px;
-    margin-top: 5px;
-`;
-
-const EnergyCard = styled.View`
-    background-color: #1e1e6e;
-    padding: 20px;
-    border-radius: 15px;
-    height: 240px;
-    margin-top: 20px;
-    margin-bottom: 10px;
-`;
-
-const EnergyText = styled.Text`
-    color: white;
-    font-size: 36px;
-    font-weight: bold;
-    margin-left: 30;
-    margin-bottom: -25;
-`;
-
-const WattPoints = styled.Text`
-    color: yellow;
-    font-size: 120px;
-    font-weight: bold;
-    margin-left: 42;
-    margin-bottom: 0;
-`;
-
-const WattPointsText = styled.Text`
-    color: white;
-    font-size: 21px;
-    font-weight: bold;
-    margin-left: 60;
-    margin-top: -24;
-`;
-
-const RoomGrid = styled.View`
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin-top: 20px;
-`;
-
-const RoomCard = styled.TouchableOpacity`
-    background-color: ${(props) => props.bgColor || "#fff"};
-    width: 48%;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    height: 180px;
-`;
-
-const RoomText = styled.Text`
-    font-size: 24;
-    font-weight: bold;
-`;
+const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
     const navigation = useNavigation();
+    const [temperature, setTemperature] = useState(22);
 
     return (
-    <ScrollView>
-    <Container>
-        <Header>
-        <TouchableOpacity>
-            <Ionicons name="help-circle-outline" size={28} color="#6A5AE0" />
-        </TouchableOpacity>
-        <View>
-            <Text style={{ fontSize: 22, fontWeight: "bold" }}>Hey, <Text style={{ fontWeight: "bold" }}>Maria 👋</Text></Text>
-            <WeatherText>Weather outside is 999°C, hot outside</WeatherText>
-        </View>
-        <ProfileImage source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} />
-        </Header>
+        <ScrollView style={styles.container}>
+            <TouchableOpacity>
+                <Ionicons name="help-circle-outline" size={28} color="#6A5AE0" />
+            </TouchableOpacity>
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.greeting}>Hey, <Text style={styles.boldText}>Tushu 👋</Text></Text>
+                    <Text style={styles.weatherText}>Weather outside is 999°C, hot outside</Text>
+                </View>
+                <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+            </View>
 
-        <View style={{ backgroundColor: "#fff", padding: 15, borderRadius: 10, marginTop: 10 }}>
-        <SectionTitle>Master Temperature Control</SectionTitle>
-        <Text>0°C</Text>
-        {/* Replace this with a proper slider component */}
-        <View style={{ height: 10, backgroundColor: "#ddd", borderRadius: 5, marginTop: 5 }} />
-        </View>
+            <View style={styles.tempControl}>
+                <Text style={styles.sectionTitle}>Master Temperature Control</Text>
+                <Text>{temperature}°C</Text>
+                <Slider
+                    style={styles.slider}
+                    minimumValue={0}
+                    maximumValue={42}
+                    step={1} // Increment in 1°C
+                    value={temperature}
+                    onValueChange={(value) => setTemperature(value)}
+                    minimumTrackTintColor="#8B5CF6"
+                    maximumTrackTintColor="#e8e8e8"
+                    thumbTintColor="#8B5CF6"/>
+            </View>
 
-      {/* Devices */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style= {{flex: 1, flexDirection: "row", flexGrow: 1, paddingRight: 10}}>
-        <DeviceGrid>
-        <SectionTitle>Devices</SectionTitle>
-        <Text></Text>
-        <DeviceCard>
-            <Ionicons name="sunny-outline" size={24} color="black" />
-            <DeviceText>Bedroom Lights</DeviceText>
-        </DeviceCard>
-        <DeviceCard>
-            <Ionicons name="shield-outline" size={24} color="black" />
-            <DeviceText>Security</DeviceText>
-        </DeviceCard>
-        <DeviceCard>
-            <Ionicons name="lock-closed-outline" size={24} color="black" />
-            <DeviceText>Lock</DeviceText>
-        </DeviceCard>
-        <DeviceCard>
-            <Ionicons name="hardware-chip-outline" size={24} color="black" />
-            <DeviceText>Robo</DeviceText>
-            <View style={{width:20}}></View>
-        </DeviceCard>
-        </DeviceGrid>
+            {/* Devices */}
+            <View style={styles.deviceGrid}>
+                <Text style={styles.sectionTitle}> Devices</Text>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deviceScroll}>
+                    {devices.map((device, index) => (
+                        <TouchableOpacity key={index} style={[styles.deviceCard, {backgroundColor: device.isPressed ? "#8B5CF6" : "#e8e8e8"}]} >
+                            <Ionicons name={device.icon} size={24} color="black" />
+                            <Text style={styles.deviceText}>{device.name}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+
+            {/* Gamification Leaderboard */}
+            <View style={styles.energyCard}>
+                <Text style={styles.energyText}>You saved</Text>
+                <Text style={styles.wattPoints}>72 <Ionicons name="trophy-outline" size={80} color="gold"/></Text>
+                <Text style={styles.wattPointsText}>watt points</Text>
+            </View>
+
+            {/* Rooms */}
+            <View style={styles.roomGrid}>
+                {rooms.map((room, index) => (
+                    <TouchableOpacity key={index} style={[styles.roomCard, { backgroundColor: room.bgColor }]} onPress={() => navigation.navigate(room.name)}>
+                        <Text style={styles.roomText}>{room.name}</Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+            <View style={{height:20}}/> {/*for extra space below to scroll*/}
         </ScrollView>
-
-      {/* Gamification Leaderboard */}
-      {/* add background image */}
-        <EnergyCard>
-        <EnergyText>You saved</EnergyText>
-        <WattPoints>72 <Ionicons name="trophy-outline" size={80} color="gold"/></WattPoints>
-        <WattPointsText>watt points</WattPointsText>
-        </EnergyCard>
-
-        <RoomGrid>
-        <RoomCard bgColor="#DCC7FF" onPress={() => navigation.navigate("Bathroom")}>
-            <RoomText>Bathroom</RoomText>
-        </RoomCard>
-        <RoomCard bgColor="#B8E4F0" onPress={() => navigation.navigate("Kitchen")}>
-            <RoomText>Kitchen</RoomText>
-        </RoomCard>
-        <RoomCard bgColor="#A3E4D7" onPress={() => navigation.navigate("LivingRoom")}>
-            <RoomText>Living Room</RoomText>
-        </RoomCard>
-        <RoomCard bgColor="#AED6F1" onPress={() => navigation.navigate("Bedroom")}>
-            <RoomText>Bedroom</RoomText>
-        </RoomCard>
-        </RoomGrid>
-    </Container>
-    </ScrollView>
     );
-}   
+}
+
+const devices = [
+    { name: "Bedroom Lights", icon: "sunny-outline", isPressed: false },
+    { name: "Security", icon: "shield-outline", isPressed: false },
+    { name: "Lock", icon: "lock-closed-outline", isPressed: false },
+    { name: "Robo", icon: "hardware-chip-outline", isPressed: false }
+];
+
+const rooms = [
+    { name: "Bathroom", bgColor: "#DCC7FF" },
+    { name: "Kitchen", bgColor: "#B8E4F0" },
+    { name: "Living Room", bgColor: "#A3E4D7" },
+    { name: "Bedroom", bgColor: "#AED6F1" }
+];
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#f5f5f5",
+        padding: 20,
+    },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 15,
+    },
+    profileImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        borderWidth: 2,
+        borderColor: "#ddd",
+    },
+    greeting: {
+        fontSize: 22,
+    },
+    boldText: {
+        fontWeight: "bold",
+    },
+    weatherText: {
+        fontSize: 14,
+        color: "#777",
+    },
+    tempControl: {
+        backgroundColor: "#fff",
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 10,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 5,
+    },
+    slider: {
+        height: 0,
+        backgroundColor: "#ddd",
+        borderRadius: 5,
+        marginTop: 5,
+    },
+    deviceGrid: {
+        backgroundColor: "#fff",
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 20,
+    },
+    deviceScroll: {
+        flexDirection: "row",
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        paddingRight: 5
+    },
+    deviceCard: {
+        backgroundColor: "#e8e8e8",
+        width: '42%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        marginHorizontal: 5,
+    },
+    deviceCardPress: {
+        backgroundColor: "#8B5CF6",
+        width: '42%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        marginHorizontal: 5,
+    },
+    deviceText: {
+        fontSize: 15,
+        marginTop: 5,
+    },
+    energyCard: {
+        backgroundColor: "#1e1e6e",
+        padding: 20,
+        borderRadius: 15,
+        height: 240,
+        marginTop: 20,
+        marginBottom: 10,
+    },
+    energyText: {
+        color: "white",
+        fontSize: 36,
+        fontWeight: "bold",
+        marginLeft: '10%'
+    },
+    wattPoints: {
+        color: "yellow",
+        fontSize: 120,
+        fontWeight: "bold",
+        marginLeft: '11%',
+    },
+    wattPointsText: {
+        color: "white",
+        fontSize: 21,
+        fontWeight: "bold",
+        marginLeft: '15%',
+        marginTop: -27
+    },
+    roomGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        marginTop: 20,
+    },
+    roomCard: {
+        width: "48%",
+        padding: 20,
+        borderRadius: 15,
+        marginBottom: 10,
+        height: 180,
+    },
+    roomText: {
+        fontSize: 24,
+        fontWeight: "bold",
+    },
+});
