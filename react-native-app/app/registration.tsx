@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -17,11 +17,11 @@ export default function RegistrationScreen() {
         <View style={styles.formContainer}>
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButtonWrapper} onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={24} color="#000" />
+              <Ionicons name="chevron-back" size={Platform.OS === 'web' ? 30 : 24} color="#000" />
             </TouchableOpacity>
             <View style={styles.logo}>
               <View style={styles.logoIcon}>
-                <Ionicons name="flash-outline" size={24} color="#000" />
+                <Ionicons name="flash-outline" size={Platform.OS === 'web' ? 30 : 24} color="#000" />
               </View>
               <Text style={styles.logoText}>My Watt</Text>
             </View>
@@ -84,8 +84,10 @@ export default function RegistrationScreen() {
             <TextInput style={styles.input} keyboardType="numeric" />
           </View>
           
-          <TouchableOpacity style={styles.signUpButton}
-          onPress={() => navigation.navigate("IndexTabs")}>
+          <TouchableOpacity 
+            style={styles.signUpButton}
+            onPress={() => navigation.navigate("IndexTabs")}
+          >
             <Text style={styles.signUpButtonText}>Sign up</Text>
           </TouchableOpacity>
         </View>
@@ -101,7 +103,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
+    padding: Platform.OS === 'web' ? '2% 15%' : 20,
     paddingBottom: 40,
   },
   statusBar: {
@@ -110,62 +112,66 @@ const styles = StyleSheet.create({
   formContainer: {
     backgroundColor: 'white',
     borderRadius: 30,
-    padding: 30,
-    marginTop: 60,
+    padding: Platform.OS === 'web' ? 60 : 30,
+    marginTop: Platform.OS === 'web' ? 80 : 60,
     alignItems: 'center',
+    maxWidth: Platform.OS === 'web' ? 800 : undefined,
+    alignSelf: 'center',
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Platform.OS === 'web' ? 30 : 20,
     width: '100%',
   },
   backButtonWrapper: {
-    marginRight: 15,
+    marginRight: Platform.OS === 'web' ? 20 : 15,
   },
   logo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   logoIcon: {
-    marginRight: 10,
+    marginRight: Platform.OS === 'web' ? 15 : 10,
   },
   logoText: {
-    fontSize: 24,
+    fontSize: Platform.OS === 'web' ? 30 : 24,
     fontWeight: '500',
   },
   title: {
-    fontSize: 32,
+    fontSize: Platform.OS === 'web' ? 42 : 32,
     fontWeight: '600',
-    marginBottom: 30,
+    marginBottom: Platform.OS === 'web' ? 40 : 30,
     textAlign: 'center',
   },
   formGroup: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: Platform.OS === 'web' ? 30 : 20,
+    maxWidth: Platform.OS === 'web' ? 600 : undefined,
   },
   label: {
-    fontSize: 18,
+    fontSize: Platform.OS === 'web' ? 20 : 18,
     color: '#6B7280',
-    marginBottom: 10,
+    marginBottom: Platform.OS === 'web' ? 15 : 10,
     textAlign: 'center',
   },
   input: {
     width: '100%',
-    padding: 15,
+    padding: Platform.OS === 'web' ? 20 : 15,
     borderRadius: 50,
     backgroundColor: '#E5E7EB',
-    fontSize: 16,
+    fontSize: Platform.OS === 'web' ? 18 : 16,
   },
   genderOptions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: Platform.OS === 'web' ? 15 : 10,
     width: '100%',
   },
   genderOption: {
     flex: 1,
-    padding: 10,
+    padding: Platform.OS === 'web' ? 15 : 10,
     borderRadius: 50,
     backgroundColor: '#E5E7EB',
     alignItems: 'center',
@@ -174,7 +180,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B82F6',
   },
   genderOptionText: {
-    fontSize: 16,
+    fontSize: Platform.OS === 'web' ? 18 : 16,
     fontWeight: '500',
     color: '#1F2937',
   },
@@ -183,17 +189,17 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     width: '100%',
-    maxWidth: 200,
-    padding: 15,
+    maxWidth: Platform.OS === 'web' ? 300 : 200,
+    padding: Platform.OS === 'web' ? 20 : 15,
     borderRadius: 50,
     backgroundColor: '#3B82F6',
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: Platform.OS === 'web' ? 30 : 20,
+    marginBottom: Platform.OS === 'web' ? 30 : 20,
   },
   signUpButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: Platform.OS === 'web' ? 20 : 18,
     fontWeight: '500',
   },
 });

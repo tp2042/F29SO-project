@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -9,29 +9,36 @@ export default function LoginScreen() {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.statusBar} />
-      
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.formContainer}>
         <View style={styles.logo}>
           <View style={styles.logoIcon}>
-            <Ionicons name="flash-outline" size={60} color="#000" />
+            <Ionicons name="flash-outline" size={Platform.OS === 'web' ? 80 : 60} color="#000" />
           </View>
           <Text style={styles.logoText}>My Watt</Text>
         </View>
         
         <View style={styles.formGroup}>
-          <Text style={styles.label}>login</Text>
-          <TextInput style={styles.input} />
+          <Text style={styles.label}>Login</Text>
+          <TextInput 
+            style={styles.input}
+            placeholderTextColor="#6B7280"
+          />
         </View>
         
         <View style={styles.formGroup}>
-          <Text style={styles.label}>password</Text>
-          <TextInput style={styles.input} secureTextEntry />
+          <Text style={styles.label}>Password</Text>
+          <TextInput 
+            style={styles.input}
+            secureTextEntry
+            placeholderTextColor="#6B7280"
+          />
         </View>
         
-        <TouchableOpacity style={styles.loginButton}
-        onPress={() => navigation.navigate('IndexTabs')}>
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={() => navigation.navigate('IndexTabs')}
+        >
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
         
@@ -48,7 +55,7 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -56,61 +63,67 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#8B5CF6',
-    padding: 20,
   },
-  statusBar: {
-    height: 40,
+  scrollContent: {
+    flexGrow: 1,
+    padding: Platform.OS === 'web' ? '5% 15%' : 20,
+    justifyContent: 'center',
+    minHeight: '100%',
   },
   formContainer: {
     backgroundColor: 'white',
     borderRadius: 30,
-    padding: 30,
-    flex: 1,
-    marginTop: 40,
+    padding: Platform.OS === 'web' ? 60 : 30,
     alignItems: 'center',
+    maxWidth: Platform.OS === 'web' ? 600 : undefined,
+    alignSelf: 'center',
+    width: '100%',
   },
   logo: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: Platform.OS === 'web' ? 60 : 40,
   },
   logoIcon: {
-    marginBottom: 10,
+    marginBottom: Platform.OS === 'web' ? 20 : 10,
   },
   logoText: {
-    fontSize: 36,
+    fontSize: Platform.OS === 'web' ? 48 : 36,
     fontWeight: '600',
+    color: '#000',
   },
   formGroup: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: Platform.OS === 'web' ? 30 : 20,
   },
   label: {
-    fontSize: 18,
-    color: '#6B7280',
+    fontSize: Platform.OS === 'web' ? 20 : 18,
+    color: '#8B5CF6',
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: 'left',
+    fontWeight: '500',
   },
   input: {
     width: '100%',
-    padding: 15,
+    padding: Platform.OS === 'web' ? 20 : 15,
     borderRadius: 50,
     backgroundColor: '#E5E7EB',
-    fontSize: 16,
+    fontSize: Platform.OS === 'web' ? 18 : 16,
+    color: '#1F2937',
   },
   loginButton: {
     width: '100%',
-    maxWidth: 200,
-    padding: 15,
+    maxWidth: Platform.OS === 'web' ? 300 : 200,
+    padding: Platform.OS === 'web' ? 20 : 15,
     borderRadius: 50,
     backgroundColor: '#3B82F6',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: Platform.OS === 'web' ? 30 : 20,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginVertical: 30,
+    marginVertical: Platform.OS === 'web' ? 40 : 30,
   },
   line: {
     flex: 1,
@@ -120,18 +133,19 @@ const styles = StyleSheet.create({
   dividerText: {
     paddingHorizontal: 15,
     color: '#6B7280',
+    fontSize: Platform.OS === 'web' ? 18 : 16,
   },
   signUpButton: {
     width: '100%',
-    maxWidth: 200,
-    padding: 15,
+    maxWidth: Platform.OS === 'web' ? 300 : 200,
+    padding: Platform.OS === 'web' ? 20 : 15,
     borderRadius: 50,
     backgroundColor: '#3B82F6',
     alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: Platform.OS === 'web' ? 20 : 18,
     fontWeight: '500',
   },
 });
