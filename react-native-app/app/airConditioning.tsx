@@ -1,41 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 
 export default function AirConditioningScreen() {
   const router = useRouter();
   const [isToggleOn, setIsToggleOn] = useState(true);
+  const progress = useSharedValue(0);
+  const currentValue = 720; // Static value
   
-  const generateSegments = () => {
-    const colors = [
-      '#FCD34D', '#FBBF24', '#F59E0B', '#F97316', 
-      '#EF4444', '#E11D48', '#BE185D', '#DB2777',
-      '#C026D3', '#A855F7', '#8B5CF6', '#6366F1',
-      '#3B82F6', '#2563EB', '#1D4ED8', '#0EA5E9',
-      '#06B6D4', '#0D9488', '#10B981', '#34D399'
-    ];
+  useEffect(() => {
+    progress.value = withTiming(1, { duration: 1500 });
+  }, []);
+
+  const generateGradientSegments = () => {
+    const totalSegments = 60;
+    const segments = [];
     
-    return colors.map((color, index) => {
-      const rotate = index * (360 / colors.length);
-      return (
+    for (let i = 0; i < totalSegments; i++) {
+      const hue = (i * (360 / totalSegments)) % 360;
+      const progress = currentValue / 1000;
+      const opacity = i / totalSegments <= progress ? 1 : 0.2;
+      
+      segments.push(
         <View 
-          key={index} 
+          key={i} 
           style={[
-            styles.coloredSegment, 
-            { 
-              transform: [{ rotate: `${rotate}deg` }],
-              backgroundColor: color 
+            styles.segment,
+            {
+              transform: [{ rotate: `${i * (360 / totalSegments)}deg` }],
+              backgroundColor: `hsla(${hue}, 70%, 50%, ${opacity})`,
             }
           ]} 
         />
       );
-    });
+    }
+    return segments;
   };
 
   const toggleSwitch = () => {
     setIsToggleOn(!isToggleOn);
   };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: progress.value }],
+      opacity: progress.value,
+    };
+  });
 
   return (
     <ScrollView style={styles.container}>
@@ -60,16 +73,18 @@ export default function AirConditioningScreen() {
         </View>
         
         <View style={styles.mainContent}>
-          <View style={styles.usageCircle}>
-            <View style={styles.circleBackground}>
-              {generateSegments()}
+          <Animated.View style={[styles.progressContainer, animatedStyle]}>
+            <View style={styles.progressBackground}>
+              {generateGradientSegments()}
             </View>
-            <View style={styles.usageValueContainer}>
-              <Text style={styles.usageValue}>331</Text>
-              <Text style={styles.usageUnit}>kWh</Text>
+            <View style={styles.centerCircle} />
+            <View style={styles.controlsOverlay}>
+              <View style={styles.valueContainer}>
+                <Text style={styles.valueText}>720</Text>
+                <Text style={styles.unitText}>kWh</Text>
+              </View>
             </View>
-            <Text style={styles.usageLabel}>this month</Text>
-          </View>
+          </Animated.View>
           
           <View style={styles.statsSection}>
             <Text style={styles.statsTitle}>Room statistics</Text>
@@ -177,57 +192,68 @@ const styles = StyleSheet.create({
     alignItems: Platform.OS === 'web' ? 'flex-start' : 'center',
     marginTop: 30,
   },
-  usageCircle: {
+  progressContainer: {
     width: Platform.OS === 'web' ? 400 : 300,
     height: Platform.OS === 'web' ? 400 : 300,
-    borderRadius: Platform.OS === 'web' ? 200 : 150,
-    backgroundColor: 'white',
+    position: 'relative',
     marginVertical: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  progressBackground: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    borderRadius: Platform.OS === 'web' ? 200 : 150,
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
   },
-  circleBackground: {
+  centerCircle: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    borderRadius: Platform.OS === 'web' ? 200 : 150,
-    overflow: 'hidden',
+    width: '70%',
+    height: '70%',
+    borderRadius: 1000,
+    backgroundColor: 'white',
+    top: '15%',
+    left: '15%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 1,
   },
-  coloredSegment: {
+  segment: {
     position: 'absolute',
-    top: 0,
-    left: '50%',
-    width: 10,
+    width: 6,
     height: '50%',
+    left: '50%',
+    top: 0,
     transformOrigin: 'bottom center',
   },
-  usageValueContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    zIndex: 1,
+  controlsOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
   },
-  usageValue: {
+  valueContainer: {
+    alignItems: 'center',
+  },
+  valueText: {
     fontSize: Platform.OS === 'web' ? 64 : 48,
     fontWeight: '700',
+    color: '#1F2937',
   },
-  usageUnit: {
-    fontSize: Platform.OS === 'web' ? 32 : 24,
-    fontWeight: '500',
-    marginLeft: 5,
-    marginBottom: 8,
-  },
-  usageLabel: {
-    fontSize: Platform.OS === 'web' ? 20 : 16,
+  unitText: {
+    fontSize: Platform.OS === 'web' ? 24 : 18,
     color: '#6B7280',
     marginTop: 5,
-    zIndex: 1,
   },
   statsSection: {
     flex: Platform.OS === 'web' ? 1 : undefined,

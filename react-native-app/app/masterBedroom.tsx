@@ -7,12 +7,12 @@ export default function MasterBedroomScreen() {
   const router = useRouter();
   const [roomActive, setRoomActive] = useState(true);
   const [devices, setDevices] = useState([
-    { id: 'curtain', name: 'Smart Curtain', icon: 'grid-outline', active: false },
-    { id: 'ac', name: 'Air Conditioner', icon: 'snow-outline', active: true },
-    { id: 'light1', name: 'Light', icon: 'bulb-outline', active: false },
-    { id: 'purifier', name: 'Air Purifier', icon: 'leaf-outline', active: true },
-    { id: 'light2', name: 'Light', icon: 'bulb-outline', active: false },
-    { id: 'tv', name: 'TV', icon: 'tv-outline', active: false }
+    { id: 'curtain', name: 'Smart Curtain', icon: 'grid-outline', active: false, route: null },
+    { id: 'ac', name: 'Air Conditioner', icon: 'snow-outline', active: true, route: '/airConditioning' },
+    { id: 'light1', name: 'Light', icon: 'bulb-outline', active: false, route: null },
+    { id: 'purifier', name: 'Air Purifier', icon: 'leaf-outline', active: true, route: null },
+    { id: 'light2', name: 'Light', icon: 'bulb-outline', active: false, route: null },
+    { id: 'tv', name: 'TV', icon: 'tv-outline', active: false, route: null }
   ]);
   
   const toggleDevice = (deviceId) => {
@@ -30,6 +30,12 @@ export default function MasterBedroomScreen() {
       ...device,
       active: newRoomState ? (device.id === 'ac' || device.id === 'purifier') : false
     })));
+  };
+
+  const handleMorePress = (device) => {
+    if (device.route) {
+      router.push(device.route);
+    }
   };
 
   return (
@@ -91,14 +97,13 @@ export default function MasterBedroomScreen() {
                     <View style={[styles.deviceToggleCircle, device.active ? styles.deviceToggleCircleActive : {}]} />
                   </TouchableOpacity>
                   <TouchableOpacity 
-                    style={styles.moreButton}
-                    onPress={() => {
-                      if (device.id === 'ac') {
-                        router.push('/airConditioning');
-                      }
-                    }}
+                    style={[styles.moreButton, !device.route && styles.moreButtonDisabled]}
+                    onPress={() => handleMorePress(device)}
+                    disabled={!device.route}
                   >
-                    <Text style={styles.moreButtonText}>more</Text>
+                    <Text style={[styles.moreButtonText, !device.route && styles.moreButtonTextDisabled]}>
+                      more
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -293,8 +298,14 @@ const styles = StyleSheet.create({
     paddingVertical: Platform.OS === 'web' ? 10 : 5,
     paddingHorizontal: Platform.OS === 'web' ? 25 : 15,
   },
+  moreButtonDisabled: {
+    backgroundColor: '#E5E7EB',
+  },
   moreButtonText: {
     color: 'white',
     fontSize: Platform.OS === 'web' ? 16 : 14,
+  },
+  moreButtonTextDisabled: {
+    color: '#9CA3AF',
   },
 });
