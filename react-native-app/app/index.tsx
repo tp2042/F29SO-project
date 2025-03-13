@@ -13,6 +13,7 @@ import SettingsScreen from './settings';
 import HomeScreen from './Home';
 import LoginScreen from './login';
 import RegistrationScreen from './registration';
+import CoverScreen from './cover';
 
 import { useState } from 'react';
 
@@ -22,6 +23,8 @@ const Stack = createStackNavigator();
 function TabNavigator() {
   return (
     <ThemeProvider>
+    {/*NavBar with text on tabs 
+    
     <Tab.Navigator screenOptions={({ route }: { route: any }) => ({
       tabBarIcon: ({ color, size }) => {
         let iconName;
@@ -42,7 +45,7 @@ function TabNavigator() {
       },
       tabBarStyle: {
         backgroundColor: '#8B5CF6',
-        height: '8%',
+        height: '10%',
         paddingLeft: '3%',
         paddingRight: '3%',
       },
@@ -55,6 +58,64 @@ function TabNavigator() {
       <Tab.Screen name="Devices" component={DeviceScreen} />
       <Tab.Screen name="Mood" component={MoodProfilesScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator> */}
+
+    <Tab.Navigator screenOptions={{tabBarShowLabel: false,
+      tabBarStyle: {
+        backgroundColor: '#8B5CF6',
+        height: '10%',
+        paddingLeft: '3%',
+        paddingRight: '3%',
+      },
+      tabBarActiveTintColor: 'yellow',
+      tabBarInactiveTintColor: 'white',
+      tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold',},
+    }}>
+    <Tab.Screen 
+    name="Home" 
+    component={HomeScreen} 
+    options={{
+      tabBarIcon: ({ color, size }) => (
+        <Ionicons name="home-outline" size={size} color={color} />
+      ),
+    }} 
+  />
+  <Tab.Screen 
+    name="Rooms" 
+    component={MasterBedroomScreen} 
+    options={{
+      tabBarIcon: ({ color, size }) => (
+        <Ionicons name="bed-outline" size={size} color={color} />
+      ),
+    }} 
+  />
+  <Tab.Screen 
+    name="Devices" 
+    component={DeviceScreen} 
+    options={{
+      tabBarIcon: ({ color, size }) => (
+        <Ionicons name="bulb-outline" size={size} color={color} />
+      ),
+    }} 
+  />
+  <Tab.Screen 
+    name="Mood" 
+    component={MoodProfilesScreen} 
+    options={{
+      tabBarIcon: ({ color, size }) => (
+        <Ionicons name="happy-outline" size={size} color={color} />
+      ),
+    }} 
+  />
+  <Tab.Screen 
+    name="Settings" 
+    component={SettingsScreen} 
+    options={{
+      tabBarIcon: ({ color, size }) => (
+        <Ionicons name="settings-outline" size={size} color={color} />
+      ),
+    }} 
+  />
     </Tab.Navigator>
     </ThemeProvider>
   )
@@ -63,7 +124,8 @@ export default function IndexScreen() {
 
   return (
     <><NavigationIndependentTree><NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Cover" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Cover" component={CoverScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Registration" component={RegistrationScreen} />
         <Stack.Screen name="IndexTabs" component={TabNavigator} />
