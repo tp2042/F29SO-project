@@ -12,7 +12,7 @@ supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase_client = create_client(supabase_url, supabase_key)
 
 # SIGNUP FUNCTION
-def sign_up(email: str, password: str, date_of_birth: str, role: str):
+def sign_up(email: str, password: str, date_of_birth: str, role: str): #ADD NAME!!
     """Registers a new user with email, password, date of birth, and role."""
     existing_user = supabase_client.table("users").select("*").eq("email", email).execute()
     if existing_user.data:
