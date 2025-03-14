@@ -18,11 +18,11 @@ export default function CoverScreen() {
     </View>
     );
 }
-
+{/* blue background color = "#3b82f6" */}
 const styles = StyleSheet.create({
     container: {
     flex: 1,
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#8B5CF6", 
     justifyContent: "center",
     alignItems: "center",
     },

@@ -14,8 +14,10 @@ import HomeScreen from './Home';
 import LoginScreen from './login';
 import RegistrationScreen from './registration';
 import CoverScreen from './cover';
+import ProfileSettings from './ProfileSettings';
 
 import { useState } from 'react';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -63,7 +65,7 @@ function TabNavigator() {
     <Tab.Navigator screenOptions={{tabBarShowLabel: false,
       tabBarStyle: {
         backgroundColor: '#8B5CF6',
-        height: '10%',
+        height: '8%',
         paddingLeft: '3%',
         paddingRight: '3%',
       },
@@ -123,14 +125,17 @@ function TabNavigator() {
 export default function IndexScreen() {
 
   return (
+    <ThemeProvider>
     <><NavigationIndependentTree><NavigationContainer>
       <Stack.Navigator initialRouteName="Cover" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Cover" component={CoverScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Registration" component={RegistrationScreen} />
         <Stack.Screen name="IndexTabs" component={TabNavigator} />
+        <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
       </Stack.Navigator>
     </NavigationContainer></NavigationIndependentTree></>
+    </ThemeProvider>
   );
 }
 

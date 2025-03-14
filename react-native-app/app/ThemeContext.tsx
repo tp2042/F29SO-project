@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ThemeContextType {
     isDarkMode: boolean;
@@ -10,10 +11,24 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
-    const toggleDarkMode = () => {
-        setIsDarkMode((prevMode) => !prevMode);
-    };
+    useEffect(() => {
+        // Load dark mode state from AsyncStorage
+        const loadTheme = async () => {
+            const savedTheme = await AsyncStorage.getItem("darkMode");
+            if (savedTheme !== null) {
+                setIsDarkMode(JSON.parse(savedTheme));
+            }
+        };
+        loadTheme();
+    }, []);
 
+    const toggleDarkMode = async () => {
+        setIsDarkMode((prev) => {
+            const newTheme = !prev;
+            AsyncStorage.setItem("darkMode", JSON.stringify(newTheme));
+            return newTheme;
+        });
+    };
     return (
         <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
             {children}

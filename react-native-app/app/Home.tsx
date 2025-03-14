@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ImageBackground } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
@@ -11,11 +11,16 @@ const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
     const navigation = useNavigation();
-    const [temperature, setTemperature] = useState(22);
+    const [temperature, setTemperature] = useState(24);
     const {isDarkMode} = useTheme();
     const backgroundColor = isDarkMode ? "black" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
     const rooms = isDarkMode ? darkModeRooms : lightModeRooms;
+    const WattPoints = 72; {/* For random = Math.floor(Math.random() * 300) + 30; */}
+
+    const backgroundImage = screenWidth > 800
+        ? require("../assets/images/gamification_desktop.jpg") 
+        : require("../assets/images/gamification_mobile.jpg");  
 
     return (
         <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
@@ -37,7 +42,7 @@ export default function HomeScreen() {
                     style={styles.slider}
                     minimumValue={0}
                     maximumValue={42}
-                    step={1} // Increment in 1°C
+                    step={1} 
                     value={temperature}
                     onValueChange={(value) => setTemperature(value)}
                     minimumTrackTintColor="#8B5CF6"
@@ -59,11 +64,12 @@ export default function HomeScreen() {
             </View>
 
             {/* Gamification Leaderboard */}
-            <View style={styles.energyCard}>
-                <Text style={styles.energyText}>You saved</Text>
-                <Text style={styles.wattPoints}>72 <Ionicons name="trophy-outline" size={80} color="gold"/></Text>
+            <ImageBackground source={backgroundImage} resizeMode="cover" style={styles.energyCard} imageStyle={{ width: "100%", height: "100%", borderRadius: 15, alignSelf: "center" }}>
+                <Text style={styles.wattPoints}> {WattPoints} </Text>
                 <Text style={styles.wattPointsText}>watt points</Text>
-            </View>
+            </ImageBackground>
+
+
 
             {/* Rooms */}
             <View style={styles.roomGrid}>
@@ -178,24 +184,19 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     energyCard: {
-        backgroundColor: "#1e1e6e",
+        width: '100%',
         padding: 20,
         borderRadius: 15,
         height: 240,
         marginTop: 20,
-        marginBottom: 10,
-    },
-    energyText: {
-        color: "white",
-        fontSize: 36,
-        fontWeight: "bold",
-        marginLeft: '10%'
+        overflow: "hidden"
     },
     wattPoints: {
         color: "yellow",
         fontSize: 120,
         fontWeight: "bold",
         marginLeft: '11%',
+        marginTop: 45
     },
     wattPointsText: {
         color: "white",
