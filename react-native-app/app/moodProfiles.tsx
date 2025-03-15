@@ -1,36 +1,43 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext";
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 export default function MoodProfilesScreen() {
-  const router = useRouter();
+  const navigation = useNavigation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('Select room');
   const [selectedMood, setSelectedMood] = useState(null);
+  const {isDarkMode} = useTheme();
+
+  const backgroundColor = isDarkMode ? "black" : "#fff";
+  const textColor = isDarkMode ? "#fff" : "#000";
   
-  // List of rooms
+  useEffect(() => {
+          navigation.setOptions({ headerShown: false });
+          }, [navigation]);
+          
   const rooms = [
-    'Master Bedroom',
-    'Living Room',
-    'Kitchen',
-    'Bathroom',
-    'Guest Room',
-    'Office',
-    'Dining Room',
-    'Kids Room',
-    'Garage',
-    'Basement'
+    'Master Bedroom', 'Living Room', 'Kitchen', 'Bathroom',
+    'Guest Room', 'Office', 'Dining Room', 'Kids Room',
+    'Garage', 'Basement'
   ];
   
-  // List of moods with their colors
-  const moods = [
-    { id: 'work', name: 'Work', color: '#B6C1E2' },
-    { id: 'party', name: 'Party', color: '#E5C1C5' },
-    { id: 'relaxed', name: 'Relaxed', color: '#C5CEB5' },
-    { id: 'sleep', name: 'Sleep', color: '#E5D0B1' }
+  const lightMoods = [
+    { id: 'work', name: 'Work', color: '#AED6F1' },
+    { id: 'party', name: 'Party', color: '#DCC7FF' },
+    { id: 'relaxed', name: 'Relaxed', color: '#B8E4F0' },
+    { id: 'sleep', name: 'Sleep', color: '#A3E4D7' }
   ];
-  
+  const darkMoods = [
+    { id: 'work', name: 'Work', color: '#4A90E2' },
+    { id: 'party', name: 'Party', color: '#7D5CD3' },
+    { id: 'relaxed', name: 'Relaxed', color: '#4DA6C3' },
+    { id: 'sleep', name: 'Sleep', color: '#3DA98F' }
+  ];
+  const moods = isDarkMode ? darkMoods : lightMoods;
   const handleRoomSelect = (room) => {
     setSelectedRoom(room);
     setIsDropdownOpen(false);
@@ -41,86 +48,85 @@ export default function MoodProfilesScreen() {
   };
   
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>
-          Hey, Maria
-          <Text style={styles.waveEmoji}> 👋</Text>
-        </Text>
-        <Text style={styles.subTitle}>Mood Profiles</Text>
-      </View>
-      
-      <View style={styles.profilePic}>
-        <Image 
-          source={{ uri: "https://randomuser.me/api/portraits/women/44.jpg" }} 
-          style={styles.profileImg} 
-        />
-      </View>
-      
-      <View style={styles.roomSelectorWrapper}>
-        <TouchableOpacity 
-          style={styles.roomSelector} 
-          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-        >
-          <Text style={styles.roomText}>{selectedRoom}</Text>
-          <Text style={[styles.chevronDown, isDropdownOpen && styles.chevronUp]}>▼</Text>
-        </TouchableOpacity>
-        
-        {isDropdownOpen && (
-          <View style={styles.dropdownMenu}>
-            <ScrollView>
-              {rooms.map((room, index) => (
-                <TouchableOpacity 
-                  key={index} 
-                  style={styles.dropdownItem}
-                  onPress={() => handleRoomSelect(room)}
-                >
-                  <Text style={styles.dropdownItemText}>{room}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+    <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.contentWrapper}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={[styles.greeting, {color: textColor}]}>
+              Hey, <Text style={{fontWeight: 'bold'}}>Maria</Text>
+              <Text style={styles.waveEmoji}> 👋</Text>
+            </Text>
+            <Text style={[styles.subTitle, {color: textColor}]}>Mood Profiles</Text>
           </View>
-        )}
-      </View>
-      
-      {isDropdownOpen && (
-        <TouchableOpacity 
-          style={styles.overlay} 
-          onPress={() => setIsDropdownOpen(false)} 
-        />
-      )}
-      
-      <View style={styles.profilesGrid}>
-        {moods.map((mood) => (
-          <TouchableOpacity 
-            key={mood.id}
-            style={[
-              styles.profileCard, 
-              { backgroundColor: mood.color },
-              selectedMood === mood.id && styles.selectedCard
-            ]}
-            onPress={() => handleMoodSelect(mood.id)}
-          >
-            {selectedMood === mood.id && (
-              <View style={styles.selectedIndicator}>
-                <Text style={styles.selectedIndicatorText}>✓</Text>
+        </View>
+        
+        <View style={styles.mainContent}>
+          <View style={styles.roomSelectorWrapper}>
+            <TouchableOpacity 
+              style={[styles.roomSelector, {backgroundColor: backgroundColor}]} 
+              onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <Text style={[styles.roomText, {color: textColor}]}>{selectedRoom}</Text>
+              <Text style={[styles.chevronDown, isDropdownOpen && styles.chevronUp, {color: textColor}]}>▼</Text>
+            </TouchableOpacity>
+            
+            {isDropdownOpen && (
+              <View style={[styles.dropdownMenu, {backgroundColor: backgroundColor}]}>
+                <ScrollView style={styles.dropdownScroll}>
+                  {rooms.map((room, index) => (
+                    <TouchableOpacity 
+                      key={index} 
+                      style={[styles.dropdownItem, {backgroundColor: backgroundColor}]}
+                      onPress={() => handleRoomSelect(room)}
+                    >
+                      <Text style={[styles.dropdownItemText, {color: textColor}]}>{room}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             )}
-            <View style={styles.profileImage}>
-              <Image 
-                source={{ uri: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" }} 
-                style={styles.profileImg} 
-              />
-            </View>
-            <Text style={styles.profileName}>{mood.name}</Text>
+          </View>
+          
+          {isDropdownOpen && (
+            <TouchableOpacity 
+              style={styles.overlay} 
+              onPress={() => setIsDropdownOpen(false)} 
+            />
+          )}
+          
+          <View style={styles.profilesGrid}>
+            {moods.map((mood) => (
+              <TouchableOpacity 
+                key={mood.id}
+                style={[
+                  styles.profileCard, 
+                  { backgroundColor: mood.color },
+                  selectedMood === mood.id && styles.selectedCard
+                ]}
+                onPress={() => handleMoodSelect(mood.id)}
+              >
+                {selectedMood === mood.id && (
+                  <View style={styles.selectedIndicator}>
+                    <Text style={styles.selectedIndicatorText}>✓</Text>
+                  </View>
+                )}
+                <View style={styles.profileImage}>
+                  <Image 
+                    source={{ uri: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" }} 
+                    style={styles.profileImg} 
+                  />
+                </View>
+                <Text style={styles.profileName}>{mood.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <TouchableOpacity style={styles.addNewButton}>
+            <Text style={styles.addNewButtonText}>Add New</Text>
           </TouchableOpacity>
-        ))}
+        </View>
       </View>
-      
-      <TouchableOpacity style={styles.addNewButton}>
-        <Text style={styles.addNewButtonText}>Add New</Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -128,32 +134,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    padding: 20,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'flex-start',
+  },
+  contentWrapper: {
+    padding: Platform.OS === 'web' ? '2% 10%' : 20,
+    maxWidth: 1400,
+    alignSelf: 'center',
+    width: '100%',
+    minHeight: '100%',
   },
   header: {
-    marginTop: 40,
+    marginTop: Platform.OS === 'web' ? 60 : 40,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Platform.OS === 'web' ? 50 : 30,
+  },
+  headerLeft: {
+    flex: 1,
   },
   greeting: {
-    fontSize: 28,
-    fontWeight: '600',
-    marginBottom: 5,
+    fontSize: Platform.OS === 'web' ? 42 : 28,
+    marginBottom: Platform.OS === 'web' ? 10 : 5,
   },
   waveEmoji: {
     marginLeft: 10,
   },
   subTitle: {
-    fontSize: 28,
+    fontSize: Platform.OS === 'web' ? 42 : 28,
     color: '#6B7280',
     fontWeight: '500',
-    marginBottom: 20,
   },
   profilePic: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: Platform.OS === 'web' ? 80 : 50,
+    height: Platform.OS === 'web' ? 80 : 50,
+    borderRadius: Platform.OS === 'web' ? 40 : 25,
     backgroundColor: '#E5E7EB',
     overflow: 'hidden',
     borderWidth: 2,
@@ -163,15 +181,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  mainContent: {
+    position: 'relative',
+  },
   roomSelectorWrapper: {
     position: 'relative',
-    marginBottom: 30,
+    marginBottom: Platform.OS === 'web' ? 50 : 30,
     zIndex: 10,
+    maxWidth: Platform.OS === 'web' ? 800 : undefined,
   },
   roomSelector: {
     backgroundColor: 'white',
-    borderRadius: 50,
-    padding: 20,
+    borderRadius: Platform.OS === 'web' ? 60 : 50,
+    padding: Platform.OS === 'web' ? 30 : 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -183,37 +205,40 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   roomText: {
-    fontSize: 24,
+    fontSize: Platform.OS === 'web' ? 32 : 24,
     fontWeight: '500',
   },
   chevronDown: {
-    fontSize: 24,
+    fontSize: Platform.OS === 'web' ? 32 : 24,
   },
   chevronUp: {
     transform: [{ rotate: '180deg' }],
   },
   dropdownMenu: {
     position: 'absolute',
-    top: 70,
+    top: Platform.OS === 'web' ? 90 : 70,
     left: 0,
     right: 0,
     backgroundColor: 'white',
-    borderRadius: 20,
+    borderRadius: Platform.OS === 'web' ? 30 : 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
-    maxHeight: 300,
+    maxHeight: Platform.OS === 'web' ? 400 : 300,
     zIndex: 20,
   },
+  dropdownScroll: {
+    padding: Platform.OS === 'web' ? 10 : 5,
+  },
   dropdownItem: {
-    padding: 15,
+    padding: Platform.OS === 'web' ? 25 : 15,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
   dropdownItemText: {
-    fontSize: 18,
+    fontSize: Platform.OS === 'web' ? 24 : 18,
   },
   overlay: {
     position: 'absolute',
@@ -227,18 +252,18 @@ const styles = StyleSheet.create({
   profilesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 30,
+    gap: Platform.OS === 'web' ? 40 : 15,
+    marginBottom: Platform.OS === 'web' ? 50 : 30,
   },
   profileCard: {
-    width: '48%',
-    borderRadius: 30,
-    padding: 30,
+    width: Platform.OS === 'web' ? 'calc(25% - 30px)' : '48%',
+    borderRadius: Platform.OS === 'web' ? 40 : 30,
+    padding: Platform.OS === 'web' ? 40 : 30,
     alignItems: 'center',
     justifyContent: 'center',
     aspectRatio: 1,
-    marginBottom: 15,
     position: 'relative',
+    minHeight: Platform.OS === 'web' ? 300 : 'auto',
   },
   selectedCard: {
     shadowColor: '#3B82F6',
@@ -250,44 +275,44 @@ const styles = StyleSheet.create({
   },
   selectedIndicator: {
     position: 'absolute',
-    top: 15,
-    right: 15,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    top: Platform.OS === 'web' ? 25 : 15,
+    right: Platform.OS === 'web' ? 25 : 15,
+    width: Platform.OS === 'web' ? 40 : 24,
+    height: Platform.OS === 'web' ? 40 : 24,
+    borderRadius: Platform.OS === 'web' ? 20 : 12,
     backgroundColor: '#3B82F6',
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectedIndicatorText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: Platform.OS === 'web' ? 20 : 14,
   },
   profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: Platform.OS === 'web' ? 120 : 80,
+    height: Platform.OS === 'web' ? 120 : 80,
+    borderRadius: Platform.OS === 'web' ? 60 : 40,
     overflow: 'hidden',
-    marginBottom: 15,
+    marginBottom: Platform.OS === 'web' ? 25 : 15,
     backgroundColor: '#ccc',
   },
   profileName: {
-    fontSize: 24,
+    fontSize: Platform.OS === 'web' ? 32 : 24,
     fontWeight: '600',
     textAlign: 'center',
   },
   addNewButton: {
-    backgroundColor: '#3B82F6',
-    borderRadius: 50,
-    paddingVertical: 15,
+    backgroundColor: '#8B5CF6',
+    borderRadius: Platform.OS === 'web' ? 60 : 50,
+    paddingVertical: Platform.OS === 'web' ? 25 : 15,
     alignItems: 'center',
     width: '100%',
-    maxWidth: 400,
+    maxWidth: Platform.OS === 'web' ? 600 : 400,
     alignSelf: 'center',
   },
   addNewButtonText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: Platform.OS === 'web' ? 32 : 24,
     fontWeight: '500',
   },
 });

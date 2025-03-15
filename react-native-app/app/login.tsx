@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -7,31 +7,90 @@ import { useNavigation } from '@react-navigation/native';
 export default function LoginScreen() {
   const router = useRouter();
   const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({
+    email: '',
+    password: ''
+  });
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleLogin = () => {
+    const newErrors = {
+      email: '',
+      password: ''
+    };
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    setErrors(newErrors);
+
+    if (!newErrors.email && !newErrors.password) {
+      navigation.navigate('IndexTabs');
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.statusBar} />
-      
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.formContainer}>
         <View style={styles.logo}>
           <View style={styles.logoIcon}>
-            <Ionicons name="flash-outline" size={60} color="#000" />
+            <Ionicons name="flash-outline" size={Platform.OS === 'web' ? 60 : 60} color="#000" />
           </View>
           <Text style={styles.logoText}>My Watt</Text>
         </View>
         
         <View style={styles.formGroup}>
-          <Text style={styles.label}>login</Text>
-          <TextInput style={styles.input} />
+          <Text style={styles.label}>Email</Text>
+          <TextInput 
+            style={[styles.input, errors.email && styles.inputError]}
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setErrors(prev => ({ ...prev, email: '' }));
+            }}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#6B7280"
+          />
+          {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
         </View>
         
         <View style={styles.formGroup}>
-          <Text style={styles.label}>password</Text>
-          <TextInput style={styles.input} secureTextEntry />
+          <Text style={styles.label}>Password</Text>
+          <TextInput 
+            style={[styles.input, errors.password && styles.inputError]}
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              setErrors(prev => ({ ...prev, password: '' }));
+            }}
+            placeholder="Enter your password"
+            secureTextEntry
+            placeholderTextColor="#6B7280"
+          />
+          {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
         </View>
         
-        <TouchableOpacity style={styles.loginButton}
-        onPress={() => navigation.navigate('IndexTabs')}>
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={handleLogin}
+        >
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
         
@@ -48,7 +107,7 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -56,61 +115,77 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#8B5CF6',
-    padding: 20,
   },
-  statusBar: {
-    height: 40,
+  scrollContent: {
+    flexGrow: 1,
+    padding: Platform.OS === 'web' ? '5% 15%' : 20,
+    justifyContent: 'center',
+    minHeight: '100%',
   },
   formContainer: {
     backgroundColor: 'white',
     borderRadius: 30,
-    padding: 30,
-    flex: 1,
-    marginTop: 40,
+    padding: Platform.OS === 'web' ? 40 : 30,
     alignItems: 'center',
+    maxWidth: Platform.OS === 'web' ? 400 : undefined,
+    alignSelf: 'center',
+    width: '100%',
   },
   logo: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: Platform.OS === 'web' ? 40 : 40,
   },
   logoIcon: {
-    marginBottom: 10,
+    marginBottom: Platform.OS === 'web' ? 20 : 10,
   },
   logoText: {
-    fontSize: 36,
+    fontSize: Platform.OS === 'web' ? 36 : 36,
     fontWeight: '600',
+    color: '#000',
   },
   formGroup: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: Platform.OS === 'web' ? 20 : 20,
   },
   label: {
-    fontSize: 18,
-    color: '#6B7280',
+    fontSize: Platform.OS === 'web' ? 16 : 18,
+    color: '#8B5CF6',
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: 'left',
+    fontWeight: '500',
   },
   input: {
     width: '100%',
-    padding: 15,
+    padding: Platform.OS === 'web' ? 15 : 15,
     borderRadius: 50,
     backgroundColor: '#E5E7EB',
-    fontSize: 16,
+    fontSize: Platform.OS === 'web' ? 16 : 16,
+    color: '#1F2937',
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: '#EF4444',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    marginTop: 5,
+    marginLeft: 15,
   },
   loginButton: {
     width: '100%',
-    maxWidth: 200,
-    padding: 15,
+    maxWidth: Platform.OS === 'web' ? 200 : 200,
+    padding: Platform.OS === 'web' ? 15 : 15,
     borderRadius: 50,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#8B5CF6',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: Platform.OS === 'web' ? 20 : 20,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginVertical: 30,
+    marginVertical: Platform.OS === 'web' ? 30 : 30,
   },
   line: {
     flex: 1,
@@ -120,18 +195,19 @@ const styles = StyleSheet.create({
   dividerText: {
     paddingHorizontal: 15,
     color: '#6B7280',
+    fontSize: Platform.OS === 'web' ? 16 : 16,
   },
   signUpButton: {
     width: '100%',
-    maxWidth: 200,
-    padding: 15,
+    maxWidth: Platform.OS === 'web' ? 200 : 200,
+    padding: Platform.OS === 'web' ? 15 : 15,
     borderRadius: 50,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#8B5CF6',
     alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: Platform.OS === 'web' ? 16 : 18,
     fontWeight: '500',
   },
 });

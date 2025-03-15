@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ImageBackground } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -17,6 +17,10 @@ export default function HomeScreen() {
     const textColor = isDarkMode ? "#fff" : "#000";
     const rooms = isDarkMode ? darkModeRooms : lightModeRooms;
     const WattPoints = 72; {/* For random = Math.floor(Math.random() * 300) + 30; */}
+
+    useEffect(() => {
+            navigation.setOptions({ headerShown: false });
+            }, [navigation]);
 
     const backgroundImage = screenWidth > 800
         ? require("../assets/images/gamification_desktop.jpg") 

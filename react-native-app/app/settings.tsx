@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
 
+import ProfileSettings from "./ProfileSettings";
+
 export default function SettingsScreen() {
     const navigation = useNavigation();
     const { isDarkMode, toggleDarkMode } = useTheme();
+
+    useEffect(() => {
+        navigation.setOptions({ headerShown: false });
+        }, [navigation]);
 
     const settingsOptions = [
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
@@ -20,7 +26,9 @@ export default function SettingsScreen() {
         <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]}>
             <View style={styles.header}>
                 <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.bold}>Maria 👋</Text></Text>
+                <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
                 <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+                </TouchableOpacity>
             </View>
             <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Settings</Text>
             
@@ -40,7 +48,7 @@ export default function SettingsScreen() {
             </View>
             
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.button}><Text style={styles.buttonText}>Sign Out</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Login")}><Text style={styles.buttonText}>Sign Out</Text></TouchableOpacity>
                 <Text style={[styles.houseId, { color: isDarkMode ? "#bbb" : "gray" }]}>House ID - Y75HJA4</Text>
             </View>
         </ScrollView>
