@@ -14,7 +14,6 @@ supabase_client = create_client(supabase_url, supabase_key)
 # SIGNUP FUNCTION
 def sign_up(email: str, password: str, date_of_birth: str, role: str, name: str, gender: str):
     """Registers a new user with email, password, date of birth, name, gender, and role."""
-        return {"error": "Sign-up failed"}
     # Step 1: Authenticate user with Supabase
     try:
         auth_response = supabase_client.auth.sign_up({"email": email, "password": password})
