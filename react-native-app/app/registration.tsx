@@ -10,13 +10,14 @@ export default function RegistrationScreen() {
   const navigation = useNavigation();
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.statusBar} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButtonWrapper} onPress={() => router.back()}>
+            <TouchableOpacity style={styles.backButtonWrapper} onPress={() => navigation.goBack()}>
               <Ionicons name="chevron-back" size={24} color="#000" />
             </TouchableOpacity>
             <View style={styles.logo}>
@@ -91,6 +92,7 @@ export default function RegistrationScreen() {
         </View>
       </ScrollView>
     </View>
+    </ScrollView>
   );
 }
 

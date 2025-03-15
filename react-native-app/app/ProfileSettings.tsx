@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "./ThemeContext";
 
 export default function ProfileSettings() {
+    const [isEditing, setIsEditing] = useState(false);
     const [name, setName] = useState("Maria");
     const [phone, setPhone] = useState("0000000000");
     const [email, setEmail] = useState("aaaaaaa@a.com");
@@ -18,6 +19,12 @@ export default function ProfileSettings() {
     const inputBorder = isDarkMode ? "#555" : "#ccc";
     const buttonBackground = '#8B5CF6';
 
+    const toggleEdit = () => setIsEditing(!isEditing);
+    const handleSave = () => {
+        console.log("Saved:", { name, phone, email });
+        setIsEditing(false);
+    };
+
     const handleChangePassword = () => {
         console.log("Change Password Pressed");
     };
@@ -29,21 +36,38 @@ export default function ProfileSettings() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="chevron-back-outline" size={20} color={textColor} />
                 </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text style={[styles.editIcon, { color: textColor }]}>✏️</Text>
+                <TouchableOpacity onPress={toggleEdit}>
+                    <Ionicons name={isEditing ? "close-outline" : "pencil-outline"} size={20} color={textColor} />
                 </TouchableOpacity>
             </View>
 
             {/* Profile Image */}
-            <Image source={{ uri: "https://via.placeholder.com/150" }} style={styles.profileImage} />
-            <TouchableOpacity>
-                <Text style={[styles.changePicText, { color: buttonBackground }]}>Change Profile Picture</Text>
+            <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+            <TouchableOpacity disabled={!isEditing}>
+                <Text style={[styles.changePicText, { color: isEditing ? "#3B82F6" : "#888" }]}>
+                    Change Profile Picture
+                </Text>
             </TouchableOpacity>
 
             {/* User Name */}
             <Text style={[styles.name, { color: textColor }]}>{name}</Text>
 
             {/* Input Fields */}
+
+            {isEditing && (
+                <>
+                <View style={styles.inputContainer}>
+                <Text style={[styles.label, { color: textColor }]}>Name</Text>
+                <TextInput
+                    style={[styles.input, { backgroundColor: inputBackground, borderColor: inputBorder, color: textColor }]}
+                    value={name}
+                    onChangeText={setName}
+                    editable={isEditing}
+                    />
+                </View>
+                </>
+                )}
+
             <View style={styles.inputContainer}>
                 <Text style={[styles.label, { color: textColor }]}>Phone Number</Text>
                 <TextInput
@@ -51,6 +75,7 @@ export default function ProfileSettings() {
                     value={phone}
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
+                    editable={isEditing}
                 />
             </View>
 
@@ -61,9 +86,12 @@ export default function ProfileSettings() {
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
+                    editable={isEditing}
                 />
             </View>
 
+            {!isEditing && (
+            <>
             <View style={styles.inputContainer}>
                 <Text style={[styles.label, { color: textColor }]}>Password</Text>
                 <TextInput
@@ -71,13 +99,22 @@ export default function ProfileSettings() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
+                    editable={false}
                 />
             </View>
 
-            {/* Change Password Button */}
-            <TouchableOpacity style={[styles.changePasswordButton, { backgroundColor: buttonBackground }]} onPress={handleChangePassword}>
-                <Text style={[styles.buttonText, { color: "#FFF" }]}>Change Password</Text>
+            <TouchableOpacity style={[styles.Button, { backgroundColor: buttonBackground }]} onPress={handleChangePassword}>
+                <Text style={styles.buttonText}>Reset Password</Text>
             </TouchableOpacity>
+            </>
+            )}
+
+            {/* Save Button */}
+            {isEditing && (
+                <TouchableOpacity style={[styles.Button, { backgroundColor: buttonBackground }]} onPress={handleSave}>
+                    <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }
@@ -127,7 +164,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 30,
     },
-    changePasswordButton: {
+    Button: {
         marginTop: 20,
         paddingVertical: 12,
         paddingHorizontal: 30,
@@ -136,5 +173,6 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         fontWeight: "bold",
+        color: "#fff"
     },
 });

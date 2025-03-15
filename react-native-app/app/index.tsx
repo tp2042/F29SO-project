@@ -8,6 +8,7 @@ import { ThemeProvider } from "./ThemeContext";
 //Importing Screens
 import MoodProfilesScreen from './moodProfiles';
 import MasterBedroomScreen from './masterBedroom';
+import RoomsScreen from './rooms';
 import DeviceScreen from './device';
 import SettingsScreen from './settings';
 import HomeScreen from './Home';
@@ -15,8 +16,6 @@ import LoginScreen from './login';
 import RegistrationScreen from './registration';
 import CoverScreen from './cover';
 import ProfileSettings from './ProfileSettings';
-
-import { useState } from 'react';
 
 
 const Tab = createBottomTabNavigator();
@@ -84,7 +83,7 @@ function TabNavigator() {
   />
   <Tab.Screen 
     name="Rooms" 
-    component={MasterBedroomScreen} 
+    component={RoomsScreen} 
     options={{
       tabBarIcon: ({ color, size }) => (
         <Ionicons name="bed-outline" size={size} color={color} />
@@ -123,15 +122,14 @@ function TabNavigator() {
   )
 }
 export default function IndexScreen() {
-
   return (
     <ThemeProvider>
     <><NavigationIndependentTree><NavigationContainer>
       <Stack.Navigator initialRouteName="Cover" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Cover" component={CoverScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Registration" component={RegistrationScreen} />
-        <Stack.Screen name="IndexTabs" component={TabNavigator} />
+        <Stack.Screen name="Cover" component={CoverScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
       </Stack.Navigator>
     </NavigationContainer></NavigationIndependentTree></>

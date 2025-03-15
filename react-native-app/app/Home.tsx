@@ -32,7 +32,9 @@ export default function HomeScreen() {
                     <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>Tushu 👋</Text></Text>
                     <Text style={[styles.weatherText, { color: isDarkMode ? "#fff" : "#000" }]}>Weather outside is 999°C, hot outside</Text>
                 </View>
+                <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
                 <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+                </TouchableOpacity>
             </View>
 
             <View style={[styles.tempControl, {backgroundColor: backgroundColor}]}>
@@ -79,7 +81,6 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 ))}
             </View>
-            <View style={{height:20}}/> {/*for extra space below to scroll*/}
         </ScrollView>
     );
 }
