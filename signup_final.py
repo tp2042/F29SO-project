@@ -12,8 +12,8 @@ supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase_client = create_client(supabase_url, supabase_key)
 
 # SIGNUP FUNCTION
-def sign_up(email: str, password: str, date_of_birth: str, role: str): #ADD NAME!!
-    """Registers a new user with email, password, date of birth, and role."""
+def sign_up(email: str, password: str, date_of_birth: str, role: str, name: str, gender: str):
+    """Registers a new user with email, password, date of birth, name, gender, and role."""
     existing_user = supabase_client.table("users").select("*").eq("email", email).execute()
     if existing_user.data:
         return {"error": "Email already exists"}
@@ -28,12 +28,15 @@ def sign_up(email: str, password: str, date_of_birth: str, role: str): #ADD NAME
         "user_uuid": user_uuid,
         "email": email,
         "user_password": password,
-        "user_role": role,  # Ensure user_role field is used
+        "user_role": role,  # This will store the enum value (e.g., "Home_User" or "Home_Manager")
         "house_id": None,
-        "date_of_birth": date_of_birth
+        "date_of_birth": date_of_birth,
+        "name": name,  # Add the name to the database
+        "gender": gender  # Add the gender to the database
     }).execute()
 
     return {"success": "User registered successfully"}
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -41,9 +44,13 @@ def register():
     email = data.get('email')
     password = data.get('password')
     date_of_birth = data.get('date_of_birth')
-    role = data.get('role')  # Get role from request data
-    response = sign_up(email, password, date_of_birth, role)
+    role = data.get('role')  # Get role from request data (provided via frontend button)
+    name = data.get('name')  # Get name from request data
+    gender = data.get('gender')  # Get gender from request data
+    
+    response = sign_up(email, password, date_of_birth, role, name, gender)
     return jsonify(response)
+
  
 
 # LOGIN FUNCTION
@@ -124,33 +131,25 @@ def reset_password_route():
     response = reset_password(email)
     return jsonify(response)
 
-# UPDATE ACCOUNT FUNCTION
-def update_account(user_uuid: str, new_email: str = None, new_password: str = None):
-    """Updates the user's email or password."""
-    update_data = {}
-    if new_email:
-        update_data["email"] = new_email
-    if new_password:
-        update_data["password"] = new_password
-
-    if not update_data:
+def update_account(user_uuid: str, new_name: str):
+    """Updates the user's name."""
+    if not new_name:
         return {"error": "No updates provided"}
 
-    response = supabase_client.auth.update_user(update_data)
+    # Update the user's name in the `users` table
+    supabase_client.table("users").update({"name": new_name}).eq("user_uuid", user_uuid).execute()
 
-    if hasattr(response, 'error'):
-        return {"error": "Failed to update account"}
+    return {"success": "Name updated successfully"}
 
-    return {"success": "Account updated successfully"}
 
 @app.route('/update_account', methods=['PUT'])
 def update_account_route():
     data = request.get_json()
     user_uuid = data.get('user_uuid')
-    new_email = data.get('new_email')
-    new_password = data.get('new_password')
-    response = update_account(user_uuid, new_email, new_password)
+    new_name = data.get('new_name')  # Get new_name from request data
+    response = update_account(user_uuid, new_name)
     return jsonify(response)
+
 
 # DELETE ACCOUNT FUNCTION
 def delete_account(user_uuid: str):
@@ -212,7 +211,7 @@ def create_house(manager_uuid: str, house_name: str):
 def join_house_route():
     data = request.get_json()
     user_uuid = data.get('user_id')
-    h_id = data.get('house_id')  # Use h_id since it's a VARCHAR identifier
+    h_id = data.get('house_id')  
 
     print("Received user_uuid:", user_uuid)
     print("Received h_id:", h_id)
@@ -223,7 +222,7 @@ def join_house_route():
 # JOIN HOUSE FUNCTION
 def join_house(user_uuid: str, h_id: str):
     """Allows a Home User to join an existing household."""
-    household = supabase_client.table("households").select("*").eq("h_id", h_id).execute()  # Use correct column name
+    household = supabase_client.table("households").select("*").eq("h_id", h_id).execute()  
     
     if not household.data:
         return {"error": "Invalid household ID"}
