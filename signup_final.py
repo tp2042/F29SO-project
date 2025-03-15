@@ -14,42 +14,48 @@ supabase_client = create_client(supabase_url, supabase_key)
 # SIGNUP FUNCTION
 def sign_up(email: str, password: str, date_of_birth: str, role: str, name: str, gender: str):
     """Registers a new user with email, password, date of birth, name, gender, and role."""
-    existing_user = supabase_client.table("users").select("*").eq("email", email).execute()
-    if existing_user.data:
-        return {"error": "Email already exists"}
-
-    auth_response = supabase_client.auth.sign_up({"email": email, "password": password})
-
-    if hasattr(auth_response, 'error'):
         return {"error": "Sign-up failed"}
+    # Step 1: Authenticate user with Supabase
+    try:
+        auth_response = supabase_client.auth.sign_up({"email": email, "password": password})
+        print("Auth Response:", auth_response)
+        user_uuid = auth_response.user.id
+    except Exception as e:
+        print("Sign-up Exception:", str(e))
+        return {"error": f"Sign-up failed: {str(e)}"}
 
-    user_uuid = str(uuid.uuid4())
-    supabase_client.table("users").insert({
-        "user_uuid": user_uuid,
-        "email": email,
-        "user_password": password,
-        "user_role": role,  # This will store the enum value (e.g., "Home_User" or "Home_Manager")
-        "house_id": None,
-        "date_of_birth": date_of_birth,
-        "name": name,  # Add the name to the database
-        "gender": gender  # Add the gender to the database
-    }).execute()
+    # Step 2: Insert user details into the `users` table
+    try:
+        supabase_client.table("users").insert({
+            "user_uuid": user_uuid,
+            "email": email,
+            "user_role": role,  # Enum value (e.g., "Home_User", "Home_Manager")
+            "house_id": None,
+            "date_of_birth": date_of_birth,
+            "name": name,
+            "gender": gender
+        }).execute()
+    except Exception as e:
+        print("Database Insertion Exception:", str(e))
+        return {"error": f"Failed to save user details: {str(e)}"}
 
     return {"success": "User registered successfully"}
 
 
 @app.route('/register', methods=['POST'])
 def register():
+    """Handles user registration."""
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
     date_of_birth = data.get('date_of_birth')
-    role = data.get('role')  # Get role from request data (provided via frontend button)
-    name = data.get('name')  # Get name from request data
-    gender = data.get('gender')  # Get gender from request data
-    
+    role = data.get('role')  # Role selected via frontend (e.g., "Home_User" or "Home_Manager")
+    name = data.get('name')  # Name provided during registration
+    gender = data.get('gender')  # Gender provided during registration
+
     response = sign_up(email, password, date_of_birth, role, name, gender)
     return jsonify(response)
+
 
  
 
@@ -59,25 +65,23 @@ def login(email: str, password: str):
     print("Attempting to log in with email:", email)
 
     try:
+        # Authenticate using Supabase
         auth_response = supabase_client.auth.sign_in_with_password({"email": email, "password": password})
-        print("Auth response:", auth_response)
+        user_uuid = auth_response.user.id  # Get the user UUID from the auth response
     except Exception as e:
         print("Exception during login:", str(e))
         return {"error": "Invalid login credentials"}
 
-    if hasattr(auth_response, 'error'):
-        return {"error": "Invalid email or password"}
-
-    user_uuid = auth_response.user.id
+    # Fetch additional user data from the `users` table
     user_data = supabase_client.table("users").select("*").eq("user_uuid", user_uuid).execute()
-
     if not user_data.data:
-        return {"error": "User not found"}
+        return {"error": "User not found in database"}
 
     user_info = user_data.data[0]
-    role = user_info["role"]
+    role = user_info["user_role"]
     house_id = user_info["house_id"]
 
+    # Fetch the user's associated house details, if any
     houses = []
     if house_id:
         house_data = supabase_client.table("houses").select("*").eq("house_id", house_id).execute()
@@ -91,13 +95,17 @@ def login(email: str, password: str):
         "houses": houses
     }
 
+
 @app.route('/login', methods=['POST'])
 def login_route():
+    """Handles user login."""
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
+
     response = login(email, password)
     return jsonify(response)
+
 
 # LOGOUT FUNCTION
 def logout():
