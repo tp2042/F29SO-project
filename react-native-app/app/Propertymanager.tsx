@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, Image, Pressable, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Image, Pressable, Dimensions, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -13,6 +13,17 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export default function HomeScreen() {
   const router = useRouter();
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newProperty, setNewProperty] = useState({
+    houseId: '',
+    email: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState({
+    houseId: '',
+    email: '',
+    password: '',
+  });
 
   const properties = [
     { id: 'home', name: 'My Home', icon: 'checkmark-circle', color: '#8B5CF6', isMain: true },
@@ -21,6 +32,55 @@ export default function HomeScreen() {
     { id: 'cs', name: 'CS-849', icon: 'home', color: '#60A5FA' },
     { id: 'tu', name: 'TU-299-I', icon: 'business', color: '#60A5FA', isLarge: true },
   ];
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      houseId: '',
+      email: '',
+      password: '',
+    };
+    let isValid = true;
+
+    if (!newProperty.houseId.trim()) {
+      newErrors.houseId = 'House name/ID is required';
+      isValid = false;
+    }
+
+    if (!newProperty.email.trim()) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!validateEmail(newProperty.email)) {
+      newErrors.email = 'Please enter a valid email';
+      isValid = false;
+    }
+
+    if (!newProperty.password.trim()) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    } else if (newProperty.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleAddProperty = () => {
+    if (validateForm()) {
+      // Here you would typically make an API call to add the property
+      setShowAddModal(false);
+      setNewProperty({
+        houseId: '',
+        email: '',
+        password: '',
+      });
+    }
+  };
 
   const PropertyCard = ({ property }) => {
     const isSelected = selectedProperty === property.id;
@@ -98,11 +158,87 @@ export default function HomeScreen() {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.addButton}>
+          <TouchableOpacity 
+            style={styles.addButton}
+            onPress={() => setShowAddModal(true)}
+          >
             <Ionicons name="add" size={24} color="#1F2937" />
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal
+        visible={showAddModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowAddModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add Property</Text>
+              <TouchableOpacity 
+                onPress={() => setShowAddModal(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>House Name/ID</Text>
+              <TextInput
+                style={[styles.input, errors.houseId && styles.inputError]}
+                value={newProperty.houseId}
+                onChangeText={(text) => {
+                  setNewProperty(prev => ({ ...prev, houseId: text }));
+                  setErrors(prev => ({ ...prev, houseId: '' }));
+                }}
+                placeholder="Enter house name or ID"
+              />
+              {errors.houseId ? <Text style={styles.errorText}>{errors.houseId}</Text> : null}
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={[styles.input, errors.email && styles.inputError]}
+                value={newProperty.email}
+                onChangeText={(text) => {
+                  setNewProperty(prev => ({ ...prev, email: text }));
+                  setErrors(prev => ({ ...prev, email: '' }));
+                }}
+                placeholder="Enter email address"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={[styles.input, errors.password && styles.inputError]}
+                value={newProperty.password}
+                onChangeText={(text) => {
+                  setNewProperty(prev => ({ ...prev, password: text }));
+                  setErrors(prev => ({ ...prev, password: '' }));
+                }}
+                placeholder="Enter password"
+                secureTextEntry
+              />
+              {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+            </View>
+
+            <TouchableOpacity
+              style={styles.addPropertyButton}
+              onPress={handleAddProperty}
+            >
+              <Text style={styles.addPropertyButtonText}>Add Property</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -241,5 +377,70 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Platform.OS === 'web' ? 40 : 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: Platform.OS === 'web' ? 500 : '100%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: Platform.OS === 'web' ? 24 : 20,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  closeButton: {
+    padding: 8,
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: Platform.OS === 'web' ? 12 : 10,
+    fontSize: 16,
+    color: '#1F2937',
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: '#EF4444',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    marginTop: 4,
+  },
+  addPropertyButton: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    padding: Platform.OS === 'web' ? 16 : 14,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  addPropertyButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
