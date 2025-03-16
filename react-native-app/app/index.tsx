@@ -17,6 +17,7 @@ import LoginScreen from './login';
 import RegistrationScreen from './registration';
 import CoverScreen from './cover';
 import ProfileSettings from './ProfileSettings';
+import LegalSettings from './LegalSettings';
 
 
 const Tab = createBottomTabNavigator();
@@ -132,6 +133,7 @@ export default function IndexScreen() {
         <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
+        <Stack.Screen name="LegalSettings" component={LegalSettings}/>
         <Stack.Screen name="RoomsDetails" component={RoomsDetails} />
       </Stack.Navigator>
     </NavigationContainer></NavigationIndependentTree></>

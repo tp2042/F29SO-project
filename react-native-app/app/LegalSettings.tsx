@@ -1,0 +1,165 @@
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "./ThemeContext";
+
+export default function LegalSettings() {
+    const navigation = useNavigation();
+    const { isDarkMode, toggleDarkMode } = useTheme();
+    const [terms, setTerms] = useState(false);
+    const [privacy, setPrivacy] = useState(false);
+
+    const backgroundColor = isDarkMode ? "#000" : "#fff";
+    const textColor = isDarkMode ? "#fff" : "#000";
+
+    return (
+            <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]}>
+                <View style={{padding: 10}}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Ionicons name="chevron-back-outline" size={27} color={textColor} />
+                    </TouchableOpacity>
+                </View>
+                <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Terms and Privacy</Text>
+                
+                <TouchableOpacity style={styles.settingItem} onPress={() => setTerms(prev => !prev)}>
+                    <View>
+                        <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Terms of Service</Text>
+                    </View>
+                    <Ionicons name={terms ? "chevron-down-outline" : "chevron-forward"} size={20} color={isDarkMode ? "#fff" : "#888"} />
+                </TouchableOpacity>
+
+                {terms && ( 
+                    <ScrollView style={{ maxHeight: 420 }}>
+                        <Text style={{ padding: 16, lineHeight: 22 }}>
+                        <Text style={[{color: '#8B5CF6'},{fontSize: 24}]}>Terms of Service{"\n"}{"\n"}</Text>
+                        <Text style={[{color: textColor}, {fontSize: 18}]}>
+                        Welcome to MyWatt! These Terms of Service govern your use of our app. By downloading, accessing, or using the app, you agree to these terms. If you do not agree, please do not use the app.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>1. Acceptance of Terms{"\n"}</Text>
+                        By using MyWatt, you confirm that you have read, understood, and agreed to these Terms of Service. If you are using the app on behalf of an organization, you represent that you have the authority to bind that organization to these terms.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>2. Eligibility{"\n"}</Text>
+                        You must be at least 13 years old to use this app. If you are under 18, you must have permission from a parent or guardian to use the app.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>3. Account Registration and Security{"\n"}</Text>
+                        You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate and complete information during registration. Notify us immediately at mywattapp@gmail.com if you suspect any unauthorized use of your account.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>4. Permitted Use{"\n"}</Text>
+                        You may use the app only for its intended purpose: managing and controlling your smart home devices.{"\n"}
+                        You agree not to misuse the app, including but not limited to:{"\n"}
+                        • Reverse-engineering, decompiling, or disassembling the app.{"\n"}
+                        • Using the app for illegal or unauthorized purposes.{"\n"}
+                        • Interfering with the app’s functionality or servers.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>5. Intellectual Property{"\n"}</Text>
+                        All content, features, and technology in the app are owned by MyWatt or its licensors.{"\n"}
+                        You are granted a limited, non-exclusive, non-transferable license to use the app for personal, non-commercial purposes.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>6. Third-Party Services{"\n"}</Text>
+                        The app may integrate with third-party services or devices. We are not responsible for the functionality, privacy practices, or content of third-party services.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>7. Updates and Changes{"\n"}</Text>
+                        We may update the app or these terms from time to time. Continued use of the app after changes constitutes your acceptance of the updated terms.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>8. Termination{"\n"}</Text>
+                        We reserve the right to suspend or terminate your access to the app if you violate these terms or engage in misuse.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>9. Limitation of Liability{"\n"}</Text>
+                        To the fullest extent permitted by law, MyWatt shall not be liable for any indirect, incidental, or consequential damages arising from your use of the app.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>10. Governing Law{"\n"}</Text>
+                        These terms are governed by the laws of United Arab Emirates. Any disputes will be resolved in the courts of Emirate of Dubai.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>11. Contact Us{"\n"}</Text>
+                        If you have questions about these terms, contact us at:{"\n"}
+                        MyWatt{"\n"}
+                        Address{"\n"}
+                        Email: mywattapp@gmail.com{"\n"}
+                        Phone: +9710000000000
+                        </Text>
+                        </Text>
+                    </ScrollView> )}
+                
+                <TouchableOpacity style={styles.settingItem} onPress={() => setPrivacy(prev => !prev)}>
+                <View>
+                    <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Privacy Policy</Text>
+                </View>
+                <Ionicons name={privacy ? "chevron-down-outline" : "chevron-forward"} size={20} color={isDarkMode ? "#fff" : "#888"} />
+                </TouchableOpacity>
+
+                {privacy && (
+                    <ScrollView style={{maxHeight: 420}}>
+                        <Text style={{ padding: 16, lineHeight: 22 }}>
+                        <Text style={[{ color: '#8B5CF6' }, { fontSize: 24 }]}>Privacy Policy{"\n\n"}</Text>
+                        <Text style={[{ color: textColor }, { fontSize: 18 }]}>
+                        Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information when you use MyWatt.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>1. Information We Collect{"\n"}</Text>
+                        Personal Information: Name, email address, phone number, and payment details (if applicable).{"\n"}
+                        Device Information: IP address, device type, operating system, and unique device identifiers.{"\n"}
+                        Usage Data: Information about how you interact with the app, such as features used and time spent.{"\n"}
+                        Smart Home Data: Data from connected devices, such as temperature settings, lighting preferences, and security logs.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>2. How We Use Your Information{"\n"}</Text>
+                        To provide and improve the app’s functionality.{"\n"}
+                        To personalize your experience and offer tailored recommendations.{"\n"}
+                        To communicate with you about updates, promotions, and support.{"\n"}
+                        To ensure the security and integrity of the app.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>3. Sharing Your Information{"\n"}</Text>
+                        We do not sell your personal information to third parties.{"\n"}
+                        We may share your information with:{"\n"}
+                        • Service providers who assist us in operating the app.{"\n"}
+                        • Law enforcement or government authorities if required by law.{"\n"}
+                        • Third parties in the event of a merger, acquisition, or sale of assets.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>4. Data Security{"\n"}</Text>
+                        We use industry-standard security measures to protect your information.{"\n"}
+                        However, no method of transmission over the internet or electronic storage is 100% secure.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>5. Your Rights{"\n"}</Text>
+                        You may access, update, or delete your personal information by contacting us at mywattapp@gmail.com.{"\n"}
+                        You may opt out of receiving promotional communications at any time.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>6. Children’s Privacy{"\n"}</Text>
+                        The app is not intended for children under 13. We do not knowingly collect personal information from children under 13.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>7. Changes to This Policy{"\n"}</Text>
+                        We may update this Privacy Policy from time to time. We will notify you of significant changes through the app or via email.{"\n\n"}
+
+                        <Text style={{ fontWeight: "bold" }}>8. Contact Us{"\n"}</Text>
+                        If you have questions about this Privacy Policy, contact us at:{"\n"}
+                        MyWatt{"\n"}
+                        Address{"\n"}
+                        Email: mywattapp@gmail.com{"\n"}
+                        Phone: +9710000000000{"\n\n"}
+
+                        Thank you for trusting MyWatt!
+                        </Text>
+                    </Text>
+                    </ScrollView>                   
+                )}
+                
+                <View style={styles.footer}>
+                    <TouchableOpacity style={styles.button}><Text style={styles.buttonText}>Delete Account</Text></TouchableOpacity>
+                </View>
+            </ScrollView>
+        );
+    }
+    
+    const styles = StyleSheet.create({
+        container: { flex: 1, backgroundColor: "#f5f5f5", padding: 20 },
+        header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+        greeting: { fontSize: 22 },
+        bold: { fontWeight: "bold" },
+        profileImage: { width: 50, height: 50, borderRadius: 25, borderWidth: 2, borderColor: "#ddd" },
+        title: { fontSize: 28, fontWeight: "bold", marginBottom: 15 },
+        settingItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: "#ddd" },
+        settingTitle: { fontSize: 18, fontWeight: "bold" },
+        settingSubtitle: { fontSize: 14, color: "#777" },
+        footer: { alignItems: "center", marginTop: 20 },
+        button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "30%", alignItems: "center", marginVertical: 5 },
+        buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
+        houseId: { color: "gray", marginTop: 10 }
+    });

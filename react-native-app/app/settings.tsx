@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
 
 import ProfileSettings from "./ProfileSettings";
+import LegalSettings from "./LegalSettings";
 
 export default function SettingsScreen() {
     const navigation = useNavigation();
@@ -19,7 +20,7 @@ export default function SettingsScreen() {
         { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySecurity" },
         { title: "Energy and Usage Monitoring", subtitle: "Energy Tracking, Usage reports", screen: "EnergyUsage" },
         { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "Support" },
-        { title: "Legal and Compliance", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalCompliance" },
+        { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
 
     return (
