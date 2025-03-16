@@ -12,6 +12,7 @@ import SettingsScreen from './settings';
 import HomeScreen from './Home';
 import LoginScreen from './login';
 import RegistrationScreen from './registration';
+import Chart from './chart';
 
 import { useState } from 'react';
 
@@ -22,7 +23,7 @@ function TabNavigator() {
   return (
     <Tab.Navigator screenOptions={({ route }: { route: any }) => ({
       tabBarIcon: ({ color, size }) => {
-        let iconName: string = '';
+        let iconName;
 
         if (route.name === 'Home') {
           iconName = 'home-outline';
@@ -34,9 +35,12 @@ function TabNavigator() {
           iconName = 'bulb-outline';
         } else if (route.name === 'Rooms') {
           iconName = 'bed-outline';
+        } else if (route.name === 'Chart') {
+          iconName = 'bar-chart-outline';
         }
+        
 
-        return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
+        return <Ionicons name={iconName} size={size} color={color} />;
       },
       tabBarStyle: {
         backgroundColor: '#8B5CF6',
@@ -53,6 +57,7 @@ function TabNavigator() {
       <Tab.Screen name="Devices" component={DeviceScreen} />
       <Tab.Screen name="Mood" component={MoodProfilesScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Chart" component={Chart} />
     </Tab.Navigator>
   )
 }

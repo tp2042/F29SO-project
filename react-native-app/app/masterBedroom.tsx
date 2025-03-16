@@ -20,7 +20,7 @@ export default function MasterBedroomScreen() {
   ]);
   
   // Toggle individual device
-  const toggleDevice = (deviceId: string) => {
+  const toggleDevice = (deviceId) => {
     setDevices(devices.map(device => 
       device.id === deviceId 
         ? { ...device, active: !device.active } 
@@ -92,7 +92,7 @@ export default function MasterBedroomScreen() {
         {devices.map((device) => (
           <View key={device.id} style={styles.deviceCard}>
             <View style={styles.deviceIconContainer}>
-              <Ionicons name={device.icon as keyof typeof Ionicons.glyphMap} size={24} color="#3B82F6" />
+              <Ionicons name={device.icon} size={24} color="#3B82F6" />
             </View>
             <Text style={styles.deviceName}>
               {device.name}

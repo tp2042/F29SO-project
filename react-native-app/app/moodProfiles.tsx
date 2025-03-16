@@ -7,7 +7,7 @@ export default function MoodProfilesScreen() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('Select room');
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedMood, setSelectedMood] = useState(null);
   
   // List of rooms
   const rooms = [
@@ -31,12 +31,12 @@ export default function MoodProfilesScreen() {
     { id: 'sleep', name: 'Sleep', color: '#E5D0B1' }
   ];
   
-  const handleRoomSelect = (room: string) => {
+  const handleRoomSelect = (room) => {
     setSelectedRoom(room);
     setIsDropdownOpen(false);
   };
   
-  const handleMoodSelect = (moodId: string) => {
+  const handleMoodSelect = (moodId) => {
     setSelectedMood(moodId === selectedMood ? null : moodId);
   };
   

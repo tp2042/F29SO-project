@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function RegistrationScreen() {
   const router = useRouter();
-  const [gender, setGender] = useState<string | null>(null);
+  const [gender, setGender] = useState(null);
   const navigation = useNavigation();
 
   return (
@@ -84,10 +84,10 @@ export default function RegistrationScreen() {
             <TextInput style={styles.input} keyboardType="numeric" />
           </View>
           
-            <TouchableOpacity style={styles.signUpButton}
-            onPress={() => navigation.navigate("Index" as never)}>
+          <TouchableOpacity style={styles.signUpButton}
+          onPress={() => navigation.navigate("IndexTabs")}>
             <Text style={styles.signUpButtonText}>Sign up</Text>
-            </TouchableOpacity>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
