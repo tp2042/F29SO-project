@@ -34,7 +34,7 @@ export default function ProfileSettings() {
             {/* Back and Edit Icons */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back-outline" size={20} color={textColor} />
+                    <Ionicons name="chevron-back-outline" size={27} color={textColor} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={toggleEdit}>
                     <Ionicons name={isEditing ? "close-outline" : "pencil-outline"} size={20} color={textColor} />

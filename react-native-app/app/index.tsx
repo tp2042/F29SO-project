@@ -9,6 +9,7 @@ import { ThemeProvider } from "./ThemeContext";
 import MoodProfilesScreen from './moodProfiles';
 import MasterBedroomScreen from './masterBedroom';
 import RoomsScreen from './rooms';
+import RoomsDetails from './roomDetails';
 import DeviceScreen from './device';
 import SettingsScreen from './settings';
 import HomeScreen from './Home';
@@ -131,6 +132,7 @@ export default function IndexScreen() {
         <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
+        <Stack.Screen name="RoomsDetails" component={RoomsDetails} />
       </Stack.Navigator>
     </NavigationContainer></NavigationIndependentTree></>
     </ThemeProvider>

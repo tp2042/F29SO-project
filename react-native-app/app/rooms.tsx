@@ -41,7 +41,7 @@ export default function RoomsScreen() {
             <TouchableOpacity 
             key={room.id} 
             style={styles.roomCard} 
-            onPress={() => router.push(`/room/${room.id}`)}
+            onPress={() => navigation.navigate('RoomsDetails', { roomName: room.name})}
             >
             <Ionicons name={room.icon} size={40} color="#8B5CF6" />
             <Text style={styles.roomName}>{room.name}</Text>
@@ -52,6 +52,7 @@ export default function RoomsScreen() {
         ))}
         <TouchableOpacity style={styles.addRoomCard} onPress={addRoom}>
             <Ionicons name="add-circle-outline" size={42} color="#8B5CF6" />
+            <Text style={styles.roomName}>Add Room</Text>
         </TouchableOpacity>
         </View>
     </ScrollView>
