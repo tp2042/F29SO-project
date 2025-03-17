@@ -4,14 +4,18 @@ import { View, Text, TouchableOpacity, Switch, ScrollView, StyleSheet } from "re
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
+import { RootStackParamList } from '.';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 export default function RoomsDetails() {
     const route = useRoute();
     const { roomName } = route.params as { roomName: string };
-    const navigation = useNavigation();
+    const navigation = useNavigation<RoomDetailsNavigationProp>();
     const { isDarkMode } = useTheme();
     const backgroundColor = isDarkMode ? "#000" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
+
+    type RoomDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'RoomDetails'>;
 
     const [devices, setDevices] = useState([
     { id: 1, name: "Ceiling Light", isOn: true },
@@ -64,19 +68,32 @@ export default function RoomsDetails() {
       {/* Devices Grid */}
         <View style={styles.devicesGrid}>
         {devices.map((device) => (
-            <View key={device.id} style={[styles.deviceCard, {backgroundColor: backgroundColor}]}>
+            <TouchableOpacity key={device.id} style={[styles.deviceCard, {backgroundColor: backgroundColor}]}
+            onPress={() =>
+                navigation.navigate('DeviceDetails', {
+                    deviceName: device.name,
+                    roomName: roomName,
+                    isOn: device.isOn, 
+                    energyUsage: energyUsage,
+                    unit: 'kWh',
+                    averageTemp: device.name === 'Heater' ? 22 : undefined,
+                    lightLevel: device.name === 'Ceiling Light' ? 75 : undefined,
+                })
+            }>
             <Text style={[styles.deviceName, {color: textColor}]}>{device.name}</Text>
             <View style={styles.deviceRow}>
                 <Text style={{color: textColor}}>{device.isOn ? "On" : "Off"}</Text>
+                <TouchableOpacity>
                 <Switch
                 value={device.isOn}
                 onValueChange={() => toggleDevice(device.id)}
                 />
+                </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => deleteDevice(device.id)} style={styles.deleteButton}>
                 <Ionicons name="trash" size={18} color="red" />
             </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
         ))}
 
         {/* Add Device Card */}

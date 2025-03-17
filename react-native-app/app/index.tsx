@@ -10,6 +10,7 @@ import MoodProfilesScreen from './moodProfiles';
 import MasterBedroomScreen from './masterBedroom';
 import RoomsScreen from './rooms';
 import RoomsDetails from './roomDetails';
+import DeviceDetailScreen from './deviceDetails';
 import DeviceScreen from './device';
 import SettingsScreen from './settings';
 import HomeScreen from './Home';
@@ -22,6 +23,19 @@ import LegalSettings from './LegalSettings';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+export type RootStackParamList = {
+  RoomDetails: undefined;
+  DeviceDetails: {
+    deviceName: string;
+    roomName: string;
+    isOn: boolean;
+    energyUsage: number;
+    unit: string;
+    averageTemp?: number;
+    lightLevel?: number;
+  };
+};
 
 function TabNavigator() {
   return (
@@ -38,8 +52,6 @@ function TabNavigator() {
           iconName = 'settings-outline';
         } else if (route.name === 'Mood') {
           iconName = 'happy-outline';
-        } else if (route.name === 'Devices') {
-          iconName = 'bulb-outline';
         } else if (route.name === 'Rooms') {
           iconName = 'bed-outline';
         }
@@ -58,7 +70,6 @@ function TabNavigator() {
     })}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Rooms" component={MasterBedroomScreen} />
-      <Tab.Screen name="Devices" component={DeviceScreen} />
       <Tab.Screen name="Mood" component={MoodProfilesScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator> */}
@@ -89,15 +100,6 @@ function TabNavigator() {
     options={{
       tabBarIcon: ({ color, size }) => (
         <Ionicons name="bed-outline" size={size} color={color} />
-      ),
-    }} 
-  />
-  <Tab.Screen 
-    name="Devices" 
-    component={DeviceScreen} 
-    options={{
-      tabBarIcon: ({ color, size }) => (
-        <Ionicons name="bulb-outline" size={size} color={color} />
       ),
     }} 
   />
@@ -135,6 +137,7 @@ export default function IndexScreen() {
         <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
         <Stack.Screen name="LegalSettings" component={LegalSettings}/>
         <Stack.Screen name="RoomsDetails" component={RoomsDetails} />
+        <Stack.Screen name="DeviceDetails" component={DeviceDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer></NavigationIndependentTree></>
     </ThemeProvider>

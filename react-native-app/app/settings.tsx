@@ -45,7 +45,7 @@ export default function SettingsScreen() {
             
             <View style={styles.settingItem}>
                 <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Dark Mode</Text>
-                <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
+                <Switch value={isDarkMode} onValueChange={toggleDarkMode} trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }} thumbColor={ isDarkMode ? '#ffffff': "#8B5CF6"}/>
             </View>
             
             <View style={styles.footer}>

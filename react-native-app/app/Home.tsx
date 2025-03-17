@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
 import { useTheme } from "./ThemeContext";
+import ProfileSettings from "./ProfileSettings";
 
 
 const screenWidth = Dimensions.get("window").width;
