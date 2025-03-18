@@ -138,6 +138,7 @@ def reset_password_route():
     response = reset_password(email)
     return jsonify(response)
 
+#UPDATE ACCOUNT
 def update_account(user_uuid: str, new_name: str):
     """Updates the user's name."""
     if not new_name:
