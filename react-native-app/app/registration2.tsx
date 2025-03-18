@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function RegistrationScreen() {
+export default function RegistrationScreen2() {
   const router = useRouter();
   const [gender, setGender] = useState(null);
   const [name, setName] = useState('');

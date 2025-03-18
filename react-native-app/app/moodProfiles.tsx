@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Platform, Modal, TextInput, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -10,6 +10,11 @@ export default function MoodProfilesScreen() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('Select room');
   const [selectedMood, setSelectedMood] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [moodName, setMoodName] = useState('');
+  const [roomForMood, setRoomForMood] = useState('Select room');
+  const [deviceConfig, setDeviceConfig] = useState({});
+  const [customMoods, setCustomMoods] = useState([]);
   const {isDarkMode} = useTheme();
 
   const backgroundColor = isDarkMode ? "black" : "#fff";
@@ -18,7 +23,16 @@ export default function MoodProfilesScreen() {
   useEffect(() => {
           navigation.setOptions({ headerShown: false });
           }, [navigation]);
-          
+  
+  const dummyDevices = ['Ceiling Light', 'Desk Lamp', 'Fan', 'Heater', 'Smart Plug'];
+
+  const handleDeviceToggle = (device) => {
+    setDeviceConfig(prev => ({
+      ...prev,
+      [device]: !prev[device]
+    }));
+  };
+
   const rooms = [
     'Master Bedroom', 'Living Room', 'Kitchen', 'Bathroom',
     'Guest Room', 'Office', 'Dining Room', 'Kids Room',
@@ -38,11 +52,30 @@ export default function MoodProfilesScreen() {
     { id: 'sleep', name: 'Sleep', color: '#3DA98F' }
   ];
   const moods = isDarkMode ? darkMoods : lightMoods;
+
+  const combinedMoods = [...moods, ...customMoods]; // COMBINED DATA
+
+  const handleSaveMood = () => {
+    const newMood = {
+      id: `${moodName.toLowerCase()}-${Date.now()}`,
+      name: moodName,
+      color: isDarkMode ? '#6B5B95' : '#C0C0C0', // You could add color picker later
+      room: roomForMood,
+      devices: deviceConfig
+    };
+    setCustomMoods(prev => [...prev, newMood]);
+    
+    // Reset modal
+    setIsModalVisible(false);
+    setMoodName('');
+    setRoomForMood('Select room');
+    setDeviceConfig({});
+  };
   const handleRoomSelect = (room) => {
     setSelectedRoom(room);
     setIsDropdownOpen(false);
   };
-  
+
   const handleMoodSelect = (moodId) => {
     setSelectedMood(moodId === selectedMood ? null : moodId);
   };
@@ -95,7 +128,7 @@ export default function MoodProfilesScreen() {
           )}
           
           <View style={styles.profilesGrid}>
-            {moods.map((mood) => (
+            {combinedMoods.map((mood) => (
               <TouchableOpacity 
                 key={mood.id}
                 style={[
@@ -121,11 +154,66 @@ export default function MoodProfilesScreen() {
             ))}
           </View>
           
-          <TouchableOpacity style={styles.addNewButton}>
-            <Text style={styles.addNewButtonText}>Add New</Text>
+          <TouchableOpacity style={styles.addNewButton} onPress={() => setIsModalVisible(true)}>
+            <Text style={styles.addNewButtonText}>Add New Mood</Text>
           </TouchableOpacity>
         </View>
       </View>
+      
+      {/* Add Mood Popup */}
+      <Modal visible={isModalVisible} transparent animationType="slide" onRequestClose={() => setIsModalVisible(false)}>
+        <View style={[styles.modalContent, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
+          <Text style={styles.modalTitle}>Create New Mood</Text>
+          
+          <TextInput
+            placeholder="Mood Name"
+            placeholderTextColor="#888"
+            style={[styles.input, { backgroundColor: isDarkMode ? "#333" : "#eee", color: isDarkMode ? '#fff' : '#000' }]}
+            value={moodName}
+            onChangeText={setMoodName}
+          />
+
+          {/* Room Selector */}
+          <TouchableOpacity 
+            style={[styles.dropdownButton, { backgroundColor: isDarkMode ? "#333" : "#eee" }]} 
+            onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <Text style={{ color: isDarkMode ? '#fff' : '#000' }}>{roomForMood}</Text>
+          </TouchableOpacity>
+          {isDropdownOpen && (
+            <View style={[styles.dropdownMenuSmall, { backgroundColor: isDarkMode ? "#333" : "#eee" }]}>
+              {rooms.map((room, index) => (
+                <TouchableOpacity key={index} onPress={() => { setRoomForMood(room); setIsDropdownOpen(false); }}>
+                  <Text style={{ padding: 10, color: isDarkMode ? '#fff' : '#000' }}>{room}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* Devices List */}
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#000' }]}>Select devices to turn ON:</Text>
+          {dummyDevices.map((device, idx) => (
+            <View key={idx} style={styles.deviceRow}>
+              <Text style={{ color: isDarkMode ? '#fff' : '#000' }}>{device}</Text>
+              <Switch 
+                value={!!deviceConfig[device]} 
+                onValueChange={() => handleDeviceToggle(device)}
+                trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }}
+                thumbColor={ isDarkMode ? '#ffffff': "#8B5CF6"}
+              />
+            </View>
+          ))}
+
+          <View style={styles.modalActions}>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setIsModalVisible(false)}>
+              <Text style={{ color: '#8B5CF6' }}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addButton} onPress={handleSaveMood}>
+              <Text style={{ color: '#fff' }}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -315,4 +403,48 @@ const styles = StyleSheet.create({
     fontSize: Platform.OS === 'web' ? 32 : 24,
     fontWeight: '500',
   },
+  modalContent: {
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    marginBottom: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#8B5CF6',
+  },
+  input: {
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  dropdownButton: {
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  dropdownMenuSmall: {
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 10,
+  },
+  deviceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  cancelButton: { padding: 10 },
+  addButton: { backgroundColor: '#8B5CF6', padding: 10, borderRadius: 8 }
 });

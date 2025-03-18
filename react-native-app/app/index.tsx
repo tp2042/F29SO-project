@@ -16,6 +16,7 @@ import SettingsScreen from './settings';
 import HomeScreen from './Home';
 import LoginScreen from './login';
 import RegistrationScreen from './registration';
+import RegistrationScreen2 from './registration2';
 import CoverScreen from './cover';
 import ProfileSettings from './ProfileSettings';
 import LegalSettings from './LegalSettings';
