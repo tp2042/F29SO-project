@@ -72,7 +72,6 @@ export default function HomeScreen() {
 
   const handleAddProperty = () => {
     if (validateForm()) {
-      // Here you would typically make an API call to add the property
       setShowAddModal(false);
       setNewProperty({
         houseId: '',
@@ -119,7 +118,10 @@ export default function HomeScreen() {
         {isSelected && (
           <TouchableOpacity 
             style={styles.manageButton}
-            onPress={() => router.push('/device')}
+            onPress={() => router.push({
+              pathname: '/energyTracking',
+              params: { propertyName: property.name }
+            })}
           >
             <Text style={styles.manageButtonText}>Manage</Text>
             <Ionicons name="arrow-forward" size={14} color="white" />
