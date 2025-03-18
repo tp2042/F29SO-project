@@ -1,10 +1,12 @@
 from supabase import create_client, Client
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import random
 import uuid
 
 app = Flask(__name__)
+CORS(app)
 
 supabase_url = "https://aycgaggcginkdlbwskgg.supabase.co"
 supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5Y2dhZ2djZ2lua2RsYndza2dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTY1NjQsImV4cCI6MjA1NTUzMjU2NH0.NLkx-mJEr5ydeQUVo410mALxGF0Qg5Go4zOO98I15f0"
