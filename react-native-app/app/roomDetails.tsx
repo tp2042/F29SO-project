@@ -82,7 +82,7 @@ export default function RoomsDetails() {
                     isOn: device.isOn, 
                     energyUsage: energyUsage,
                     unit: 'kWh',
-                    averageTemp: device.name === 'Heater' ? 22 : undefined,
+                    averageTemp: device.name === 'Heater' ? 24 : undefined,
                     lightLevel: device.name === 'Ceiling Light' ? 75 : undefined,
                 })
             }>

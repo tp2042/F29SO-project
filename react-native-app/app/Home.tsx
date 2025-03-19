@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ImageBackground } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ImageBackground, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
+import { BarChart } from "react-native-chart-kit";
 import { useTheme } from "./ThemeContext";
 import ProfileSettings from "./ProfileSettings";
+import EnergyTrackingScreen from "./energyTracking";
 
 
 const screenWidth = Dimensions.get("window").width;
@@ -18,6 +20,22 @@ export default function HomeScreen() {
     const textColor = isDarkMode ? "#fff" : "#000";
     const rooms = isDarkMode ? darkModeRooms : lightModeRooms;
     const WattPoints = 72; {/* For random = Math.floor(Math.random() * 300) + 30; */}
+    const isWeb = Platform.OS === 'web';
+
+    const chartWidth = isWeb 
+    ? Math.min(Math.max(screenWidth * 0.6, 500), 800)
+    : screenWidth - 32;
+
+    const data = [
+        { day: "Sun", usage: 20 },
+        { day: "Mon", usage: 35 },
+        { day: "Tue", usage: 30 },
+        { day: "Wed", usage: 200 },
+        { day: "Thu", usage: 28 },
+        { day: "Fri", usage: 25 },
+        { day: "Sat", usage: 38 },
+    ];
+    const maxUsage = Math.max(...data.map((item) => item.usage));
 
     useEffect(() => {
             navigation.setOptions({ headerShown: false });
@@ -76,7 +94,67 @@ export default function HomeScreen() {
                 <Text style={styles.wattPointsText}>watt points</Text>
             </ImageBackground>
 
-
+            {/* Energy usage graph */}
+            <TouchableOpacity onPress={() => navigation.navigate(EnergyTrackingScreen, { propertyName: "my home" })}>
+            <View style={styles.chartCard}>
+                        <Text style={styles.chartTitle}>Electricity Usage</Text>
+                        <Text style={styles.chartSubtitle}>Past 7 Days</Text>
+            
+                        <ScrollView 
+                            horizontal 
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.chartScrollContainer}
+                        >
+                            <BarChart
+                            data={{
+                                labels: data.map((item) => item.day),
+                                datasets: [{ 
+                                data: data.map((item) => item.usage),
+                                color: (opacity = 1) => `rgb(255, 255, 255)`,
+                                }],
+                            }}
+                            width={isWeb ? chartWidth : Math.max(chartWidth, 400)}
+                            height={200}
+                            yAxisLabel=""
+                            yAxisSuffix=" kWh"
+                            fromZero
+                            showValuesOnTopOfBars
+                            segments={5}
+                            chartConfig={{
+                                backgroundColor: "#8B5CF6",
+                                backgroundGradientFrom: "#8B5CF6",
+                                backgroundGradientTo: "#8B5CF6",
+                                decimalPlaces: 0,
+                                color: (opacity = 1, index) => {
+                                if (index === undefined) return 'rgb(255, 255, 255)';
+                                return data[index]?.usage === maxUsage 
+                                    ? 'rgb(255, 215, 0)'
+                                    : 'rgb(255, 255, 255)';
+                                },
+                                style: {
+                                borderRadius: 15,
+                                },
+                                barPercentage: 0.7,
+                                barRadius: 6,
+                                propsForBackgroundLines: {
+                                strokeWidth: 1,
+                                stroke: "rgba(255,255,255,0.2)",
+                                },
+                                count: 5,
+                                formatYLabel: (value) => Math.round(Number(value)).toString(),
+                                propsForLabels: {
+                                fontSize: isWeb ? 14 : 12,
+                                },
+                            }}
+                            style={{
+                                marginVertical: 8,
+                                borderRadius: 16,
+                            }}
+                            />
+                        </ScrollView>
+                        </View>
+                        </TouchableOpacity>
+            
 
             {/* Rooms */}
             <View style={styles.roomGrid}>
@@ -191,7 +269,6 @@ const styles = StyleSheet.create({
     },
     energyCard: {
         width: '100%',
-        padding: 20,
         borderRadius: 15,
         height: 240,
         marginTop: 20,
@@ -228,4 +305,23 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
     },
+    chartCard: {
+        backgroundColor: '#8B5CF6',
+        borderRadius: Platform.OS === 'web' ? 30 : 16,
+        padding: 40,
+        marginTop: 20
+        },
+        chartScrollContainer: {
+        paddingRight: 0,
+        },
+        chartTitle: {
+        fontSize: Platform.OS === 'web' ? 24 : 18,
+        fontWeight: '600',
+        color: 'white',
+        },
+        chartSubtitle: {
+        fontSize: Platform.OS === 'web' ? 16 : 12,
+        color: 'rgba(255, 255, 255, 0.8)',
+        marginBottom: Platform.OS === 'web' ? 20 : 12,
+        },
 });
