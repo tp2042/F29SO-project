@@ -88,14 +88,8 @@ export default function HomeScreen() {
                 </ScrollView>
             </View>
 
-            {/* Gamification Leaderboard */}
-            <ImageBackground source={backgroundImage} resizeMode="cover" style={styles.energyCard} imageStyle={{ width: "100%", height: "100%", borderRadius: 15, alignSelf: "center" }}>
-                <Text style={styles.wattPoints}> {WattPoints} </Text>
-                <Text style={styles.wattPointsText}>watt points</Text>
-            </ImageBackground>
-
             {/* Energy usage graph */}
-            <TouchableOpacity onPress={() => navigation.navigate(EnergyTrackingScreen, { propertyName: "my home" })}>
+            <TouchableOpacity onPress={() => navigation.navigate("EnergyTrackingScreen", { propertyName: "my home" })}>
             <View style={styles.chartCard}>
                         <Text style={styles.chartTitle}>Electricity Usage</Text>
                         <Text style={styles.chartSubtitle}>Past 7 Days</Text>
@@ -155,6 +149,11 @@ export default function HomeScreen() {
                         </View>
                         </TouchableOpacity>
             
+            {/* Gamification Leaderboard */}
+            <ImageBackground source={backgroundImage} resizeMode="cover" style={styles.energyCard} imageStyle={{ width: "100%", height: "100%", borderRadius: 15, alignSelf: "center" }}>
+                <Text style={styles.wattPoints}> {WattPoints} </Text>
+                <Text style={styles.wattPointsText}>watt points</Text>
+            </ImageBackground>
 
             {/* Rooms */}
             <View style={styles.roomGrid}>
@@ -307,7 +306,7 @@ const styles = StyleSheet.create({
     },
     chartCard: {
         backgroundColor: '#8B5CF6',
-        borderRadius: Platform.OS === 'web' ? 30 : 16,
+        borderRadius: 15,
         padding: 40,
         marginTop: 20
         },

@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Image, Pressable, D
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useNavigation } from "@react-navigation/native";
+import ProfileSettings from './ProfileSettings';
 
 const { width } = Dimensions.get('window');
 const isSmallDevice = width < 375;
@@ -12,6 +14,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function PropertyManagerScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newProperty, setNewProperty] = useState({
@@ -146,10 +149,12 @@ export default function PropertyManagerScreen() {
           </View>
           
           <View style={styles.profileContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
             <Image 
               source={{ uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop' }}
               style={styles.profileImage}
             />
+            </TouchableOpacity>
           </View>
         </View>
 

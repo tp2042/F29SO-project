@@ -6,6 +6,7 @@ import { useTheme } from "./ThemeContext";
 
 import ProfileSettings from "./ProfileSettings";
 import LegalSettings from "./LegalSettings";
+import EnergyTrackingScreen from "./energyTracking";
 
 export default function SettingsScreen() {
     const navigation = useNavigation();
@@ -18,13 +19,13 @@ export default function SettingsScreen() {
     const settingsOptions = [
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
         { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySettings" },
-        { title: "Energy and Usage Monitoring", subtitle: "Energy Tracking, Usage reports", screen: "EnergyTrackingScreen, {propertyName: 'My Home'}" },
-        { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "Support" },
+        { title: "Energy and Usage Monitoring", subtitle: "Energy Tracking, Usage reports", screen: "EnergyTrackingScreen", params: { propertyName: 'My Home' } },
+        { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "SupportScreen" },
         { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]}>
+        <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]} >
             <View style={styles.header}>
                 <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.bold}>Maria 👋</Text></Text>
                 <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
@@ -34,7 +35,7 @@ export default function SettingsScreen() {
             <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Settings</Text>
             
             {settingsOptions.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.settingItem} onPress={() => navigation.navigate(item.screen)}>
+                <TouchableOpacity key={index} style={styles.settingItem} onPress={() => navigation.getParent()?.navigate(item.screen)}>
                     <View>
                         <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>{item.title}</Text>
                         <Text style={[styles.settingSubtitle, { color: isDarkMode ? "#fff" : "#000" }]}>{item.subtitle}</Text>

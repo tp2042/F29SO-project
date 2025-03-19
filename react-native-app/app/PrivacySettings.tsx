@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
 
 export default function PrivacySettings() {
     const navigation = useNavigation();
-    const { isDarkMode, toggleDarkMode } = useTheme();
-    const [terms, setTerms] = useState(false);
-    const [privacy, setPrivacy] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    const { isDarkMode } = useTheme();
     const location = false;
     const notifs = false;
     const camera = false;
@@ -18,10 +14,6 @@ export default function PrivacySettings() {
     const backgroundColor = isDarkMode ? "#000" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
 
-    const handleDeleteAccount = () => {
-        setModalVisible(false);
-        navigation.navigate("Login");
-    };
 
     return (
             <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]}>

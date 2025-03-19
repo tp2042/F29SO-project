@@ -2,15 +2,15 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { BarChart } from "react-native-chart-kit";
 import { useWindowDimensions } from 'react-native';
 
 export default function EnergyTrackingScreen() {
-  const router = useRouter();
+const route = useRoute()
   const navigation = useNavigation();
   const { width: windowWidth } = useWindowDimensions();
-  const { propertyName } = useLocalSearchParams();
+  const { propertyName } = route.params || {};
   const isWeb = Platform.OS === 'web';
   
   const chartWidth = isWeb 
@@ -42,7 +42,7 @@ export default function EnergyTrackingScreen() {
   const mobileCardWidth = (windowWidth - 32 - 8) / 2; // 32=padding, 8=gap
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}  contentContainerStyle={{ paddingBottom: 40 }}>
       <View style={styles.contentWrapper}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -54,6 +54,7 @@ export default function EnergyTrackingScreen() {
               <Text style={styles.subtitle}>Weekly Overview</Text>
             </View>
           </View>
+          <TouchableOpacity style={styles.button}><Text style={styles.buttonText}>Download Report</Text></TouchableOpacity>
         </View>
 
         <View style={styles.mainContent}>
@@ -302,4 +303,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     lineHeight: Platform.OS === 'web' ? 24 : 18,
   },
+  button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "15%", alignItems: "center", marginVertical: 5, right: 25},
+  buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
 });
