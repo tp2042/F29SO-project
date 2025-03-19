@@ -201,7 +201,7 @@ export default function RegistrationScreen2() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButtonWrapper} onPress={() => router.back()}>
+            <TouchableOpacity style={styles.backButtonWrapper} onPress={() => navigation.goBack()}>
               <Ionicons name="chevron-back" size={Platform.OS === 'web' ? 24 : 24} color="#000" />
             </TouchableOpacity>
             <View style={styles.logo}>

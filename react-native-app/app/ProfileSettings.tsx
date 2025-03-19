@@ -7,7 +7,6 @@ import { useTheme } from "./ThemeContext";
 export default function ProfileSettings() {
     const [isEditing, setIsEditing] = useState(false);
     const [name, setName] = useState("Maria");
-    const [phone, setPhone] = useState("0000000000");
     const [email, setEmail] = useState("aaaaaaa@a.com");
     const [password, setPassword] = useState("*************");
     const navigation = useNavigation();
@@ -21,7 +20,7 @@ export default function ProfileSettings() {
 
     const toggleEdit = () => setIsEditing(!isEditing);
     const handleSave = () => {
-        console.log("Saved:", { name, phone, email });
+        console.log("Saved:", {name});
         setIsEditing(false);
     };
 
@@ -68,27 +67,16 @@ export default function ProfileSettings() {
                 </>
                 )}
 
-            <View style={styles.inputContainer}>
-                <Text style={[styles.label, { color: textColor }]}>Phone Number</Text>
-                <TextInput
-                    style={[styles.input, { backgroundColor: inputBackground, borderColor: inputBorder, color: textColor }]}
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                    editable={isEditing}
-                />
-            </View>
-
-            <View style={styles.inputContainer}>
+            {!isEditing && (<View style={styles.inputContainer}>
                 <Text style={[styles.label, { color: textColor }]}>Email Address</Text>
                 <TextInput
                     style={[styles.input, { backgroundColor: inputBackground, borderColor: inputBorder, color: textColor }]}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
-                    editable={isEditing}
+                    editable={false}
                 />
-            </View>
+            </View>)}
 
             {!isEditing && (
             <>
@@ -154,15 +142,17 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     label: {
-        fontSize: 14,
+        fontSize: 18,
         fontWeight: "500",
-        marginLeft: "1%"
+        marginLeft: "1%",
+        marginBottom: '0.3%'
     },
     input: {
         width: "100%",
         padding: 12,
         borderWidth: 1,
         borderRadius: 30,
+        height: 45
     },
     Button: {
         marginTop: 20,
