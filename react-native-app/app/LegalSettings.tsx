@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -9,9 +9,15 @@ export default function LegalSettings() {
     const { isDarkMode, toggleDarkMode } = useTheme();
     const [terms, setTerms] = useState(false);
     const [privacy, setPrivacy] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const backgroundColor = isDarkMode ? "#000" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
+
+    const handleDeleteAccount = () => {
+        setModalVisible(false);
+        navigation.navigate("Login");
+    };
 
     return (
             <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]}>
@@ -33,7 +39,7 @@ export default function LegalSettings() {
                     <ScrollView style={{ maxHeight: 420 }}>
                         <Text style={{ padding: 16, lineHeight: 22 }}>
                         <Text style={[{color: '#8B5CF6'},{fontSize: 24}]}>Terms of Service{"\n"}{"\n"}</Text>
-                        <Text style={[{color: textColor}, {fontSize: 18}]}>
+                        <Text style={[{color: textColor}, {fontSize: 20}]}>
                         Welcome to MyWatt! These Terms of Service govern your use of our app. By downloading, accessing, or using the app, you agree to these terms. If you do not agree, please do not use the app.{"\n\n"}
 
                         <Text style={{ fontWeight: "bold" }}>1. Acceptance of Terms{"\n"}</Text>
@@ -92,7 +98,7 @@ export default function LegalSettings() {
                     <ScrollView style={{maxHeight: 420}}>
                         <Text style={{ padding: 16, lineHeight: 22 }}>
                         <Text style={[{ color: '#8B5CF6' }, { fontSize: 24 }]}>Privacy Policy{"\n\n"}</Text>
-                        <Text style={[{ color: textColor }, { fontSize: 18 }]}>
+                        <Text style={[{ color: textColor }, { fontSize: 20 }]}>
                         Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information when you use MyWatt.{"\n\n"}
 
                         <Text style={{ fontWeight: "bold" }}>1. Information We Collect{"\n"}</Text>
@@ -142,8 +148,33 @@ export default function LegalSettings() {
                 )}
                 
                 <View style={styles.footer}>
-                    <TouchableOpacity style={styles.button}><Text style={styles.buttonText}>Delete Account</Text></TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+                        <Text style={styles.buttonText}>Delete Account</Text>
+                    </TouchableOpacity>
                 </View>
+
+                {/* Delete accont popup */}
+                <Modal
+                                animationType="fade"
+                                transparent={true}
+                                visible={modalVisible}
+                                onRequestClose={() => setModalVisible(false)}
+                            >
+                                <View style={styles.modalContainer}>
+                                    <View style={[styles.modalContent, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
+                                        <Text style={[styles.modalTitle, { color: textColor }]}>Are you sure? Your account will be permanently deleted.</Text>
+
+                                <View style={styles.modalButtons}>
+                                <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                                    <Text style={{ color: '#8B5CF6' }}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.addButton} onPress={handleDeleteAccount}>
+                                    <Text style={{ color: '#fff' }}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        </View>
+                </Modal>
             </ScrollView>
         );
     }
@@ -161,5 +192,11 @@ export default function LegalSettings() {
         footer: { alignItems: "center", marginTop: 20 },
         button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "30%", alignItems: "center", marginVertical: 5 },
         buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-        houseId: { color: "gray", marginTop: 10 }
+        houseId: { color: "gray", marginTop: 10 },
+        modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
+        modalContent: { width: '54%', borderRadius: 15, padding: 20 },
+        modalTitle: { fontSize: 22, fontWeight: '600', marginBottom: 15, alignSelf: 'center'},
+        modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
+        cancelButton: { padding: 10 },
+        addButton: { backgroundColor: '#8B5CF6', padding: 10, borderRadius: 8 }
     });

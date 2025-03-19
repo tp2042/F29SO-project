@@ -1,6 +1,6 @@
 import { useRoute } from '@react-navigation/native';
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Switch, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Switch, ScrollView, StyleSheet, Modal, TextInput } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -11,6 +11,9 @@ export default function RoomsDetails() {
     const route = useRoute();
     const { roomName } = route.params as { roomName: string };
     const navigation = useNavigation<RoomDetailsNavigationProp>();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [newDeviceName, setNewDeviceName] = useState('');
+
     const { isDarkMode } = useTheme();
     const backgroundColor = isDarkMode ? "#000" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
@@ -41,10 +44,13 @@ export default function RoomsDetails() {
     setDevices(updatedDevices);
     };
 
-    const addDevice = () => {
-    const newId = devices.length + 1;
-    setDevices([...devices, { id: newId, name: `New Device ${newId}`, isOn: false }]);
-    };
+    const handleAddDevice = () => {
+        const newId = devices.length + 1;
+        setDevices([...devices, { id: newId, name: newDeviceName || `New Device ${newId}`, isOn: false }]);
+        setNewDeviceName('');
+        setIsModalVisible(false);
+};
+
 
     const deleteDevice = (id: number) => {
     setDevices(devices.filter((device) => device.id !== id));
@@ -97,11 +103,39 @@ export default function RoomsDetails() {
         ))}
 
         {/* Add Device Card */}
-        <TouchableOpacity onPress={addDevice} style={[styles.addDeviceCard, {backgroundColor: isDarkMode ? "#A9A9A9" : "#e5e7eb"}]}>
+        <TouchableOpacity onPress={() => setIsModalVisible(true)} style={[styles.addDeviceCard, {backgroundColor: isDarkMode ? "#A9A9A9" : "#e5e7eb"}]}>
             <Ionicons name="add" size={32} color="#555" />
             <Text style={[styles.addText, {color: textColor}]}>Add Device</Text>
         </TouchableOpacity>
         </View>
+        \{/* Add new Device popup*/}
+        <Modal
+    visible={isModalVisible}
+    transparent
+    animationType="slide"
+>
+    <View style={styles.modalOverlay}>
+        <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: textColor }}>Add New Device</Text>
+            <TextInput
+                placeholder="Device Name"
+                placeholderTextColor={isDarkMode ? "#aaa" : "#555"}
+                value={newDeviceName}
+                onChangeText={setNewDeviceName}
+                style={[styles.input, { borderColor: isDarkMode ? "#555" : "#ccc", color: textColor }]}
+            />
+            <View style={styles.modalButtons}>
+                <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.cancelButton}>
+                    <Text style={{ color: '#8B5CF6' }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleAddDevice} style={styles.addButton}>
+                    <Text style={{ color: '#fff' }}>Add</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    </View>
+</Modal>
+
     </ScrollView>
     );
 }
@@ -175,4 +209,34 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: "#555",
     },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+        width: '80%',
+        padding: 20,
+        borderRadius: 10,
+    },
+    input: {
+        width: '100%',
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 10,
+        marginBottom: 16,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    cancelButton: {
+        padding: 10,
+    },
+    addButton: {
+        padding: 10,
+        borderRadius: 8,
+        backgroundColor: '#8B5CF6',
+    },    
 });
