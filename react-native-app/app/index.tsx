@@ -24,6 +24,7 @@ import PropertyManagerScreen from './Propertymanager';
 import EnergyTrackingScreen from './energyTracking';
 import PrivacySettings from './PrivacySettings';
 import SupportScreen from './Support';
+import HousesScreen from './Houses';
 
 
 const Tab = createBottomTabNavigator();
@@ -138,6 +139,7 @@ export default function IndexScreen() {
         <Stack.Screen name="Cover" component={CoverScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="HousesScreen" component={HousesScreen}/>
         <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="PropertyManager" component={PropertyManagerScreen}/>
         <Stack.Screen name="EnergyTrackingScreen" component={EnergyTrackingScreen}/>

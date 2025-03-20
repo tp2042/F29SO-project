@@ -23,34 +23,25 @@ export default function PrivacySettings() {
                     </TouchableOpacity>
                 </View>
                 <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Privacy and Security</Text>
-                
-                <TouchableOpacity style={styles.settingItem} onPress={() => setTerms(prev => !prev)}>
                     <View>
                         <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Location Access</Text>
                     </View>
                     <Switch value={location} trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }} thumbColor={ isDarkMode ? '#ffffff': "#8B5CF6"}/>
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.settingItem} onPress={() => setPrivacy(prev => !prev)}>
+
                 <View>
                     <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Camera Access</Text>
                 </View>
                 <Switch value={camera} trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }} thumbColor={ isDarkMode ? '#ffffff': "#8B5CF6"}/>
-                </TouchableOpacity>
 
-                <TouchableOpacity style={styles.settingItem} onPress={() => setPrivacy(prev => !prev)}>
                 <View>
                     <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Bluetooth Access</Text>
                 </View>
                 <Switch value={bluetooth} trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }} thumbColor={ isDarkMode ? '#ffffff': "#8B5CF6"}/>
-                </TouchableOpacity>
 
-                <TouchableOpacity style={styles.settingItem} onPress={() => setPrivacy(prev => !prev)}>
                 <View>
                     <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Notifications</Text>
                 </View>
                 <Switch value={notifs}  trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }} thumbColor={ isDarkMode ? '#ffffff': "#8B5CF6"}/>
-                </TouchableOpacity>
             </ScrollView>
         );
     }

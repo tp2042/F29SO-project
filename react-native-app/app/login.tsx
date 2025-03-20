@@ -40,7 +40,7 @@ export default function LoginScreen() {
     setErrors(newErrors);
 
     if (!newErrors.email && !newErrors.password) {
-      navigation.navigate('IndexTabs');
+      navigation.navigate('HousesScreen');
     }
   };
 

@@ -47,9 +47,7 @@ export default function HomeScreen() {
 
     return (
         <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
-            <TouchableOpacity>
-                <Ionicons name="help-circle-outline" size={28} color="#6A5AE0" />
-            </TouchableOpacity>
+            <View style={{height: 15}}></View>
             <View style={styles.header}>
                 <View>
                     <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>Tushu 👋</Text></Text>

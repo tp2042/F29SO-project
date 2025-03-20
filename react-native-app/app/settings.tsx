@@ -20,7 +20,7 @@ export default function SettingsScreen() {
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
         { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySettings" },
         { title: "Energy and Usage Monitoring", subtitle: "Energy Tracking, Usage reports", screen: "EnergyTrackingScreen", params: { propertyName: 'My Home' } },
-        { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "SupportScreen" },
+        { title: "Support", subtitle: "Help Center, FAQs, Contact Support", screen: "SupportScreen" },
         { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
 

@@ -108,7 +108,7 @@ export default function RegistrationScreen2() {
     setErrors(newErrors);
 
     if (!Object.values(newErrors).some(error => error)) {
-      navigation.navigate('IndexTabs');
+      navigation.navigate('HousesScreen');
     }
   };
 
