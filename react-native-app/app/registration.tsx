@@ -14,6 +14,7 @@ export default function RegistrationScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState(new Date(2000, 0, 1));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [userType, setUserType] = useState('');
@@ -243,13 +244,12 @@ export default function RegistrationScreen() {
   };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollContent}>
     <View style={styles.container}>
-      <View style={styles.statusBar} />
-      
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={styles.statusBar} />      
         <View style={styles.formContainer}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButtonWrapper} onPress={() => router.back()}>
+            <TouchableOpacity style={styles.backButtonWrapper} onPress={() => navigation.goBack()}>
               <Ionicons name="chevron-back" size={Platform.OS === 'web' ? 24 : 24} color="#000" />
             </TouchableOpacity>
             <View style={styles.logo}>
@@ -420,8 +420,67 @@ export default function RegistrationScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
     </View>
+
+    <Modal visible={isModalVisible} animationType="fade" onRequestClose={() => setIsModalVisible(false)}>
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContent, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
+          <Text style={styles.modalTitle}>Create New Mood</Text>
+          <ScrollView style={{ maxHeight: 420 }}>
+                              <Text style={{ padding: 16, lineHeight: 22 }}>
+                              <Text style={[{color: '#8B5CF6'},{fontSize: 24}]}>Terms of Service{"\n"}{"\n"}</Text>
+                              <Text style={[{color: textColor}, {fontSize: 20}]}>
+                              Welcome to MyWatt! These Terms of Service govern your use of our app. By downloading, accessing, or using the app, you agree to these terms. If you do not agree, please refrain from using the app.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>1. Acceptance of Terms{"\n"}</Text>
+                              By using MyWatt, you confirm that you have read, understood, and agreed to these Terms of Service. If you are using the app on behalf of an organization, you represent that you have the authority to bind that organization to these terms.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>2. Eligibility{"\n"}</Text>
+                              You must be at least 13 years old to use this app. If you are under 18, you must have permission from a parent or guardian to use the app.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>3. Account Registration and Security{"\n"}</Text>
+                              You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate and complete information during registration. Notify us immediately at mywattapp@gmail.com if you suspect any unauthorized use of your account.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>4. Permitted Use{"\n"}</Text>
+                              You may use the app only for its intended purpose: managing and controlling your smart home devices.{"\n"}
+                              You agree not to misuse the app, including but not limited to:{"\n"}
+                              • Reverse-engineering, decompiling, or disassembling the app.{"\n"}
+                              • Using the app for illegal or unauthorized purposes.{"\n"}
+                              • Interfering with the app's functionality or servers.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>5. Intellectual Property{"\n"}</Text>
+                              All content, features, and technology in the app are owned by MyWatt or its licensors.{"\n"}
+                              You are granted a limited, non-exclusive, non-transferable license to use the app for personal, non-commercial purposes.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>6. Third-Party Services{"\n"}</Text>
+                              The app may integrate with third-party services or devices. We are not responsible for the functionality, privacy practices, or content of third-party services.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>7. Updates and Changes{"\n"}</Text>
+                              We may update the app or these terms from time to time. Continued use of the app after changes constitutes your acceptance of the updated terms.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>8. Termination{"\n"}</Text>
+                              We reserve the right to suspend or terminate your access to the app if you violate these terms or engage in misuse.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>9. Limitation of Liability{"\n"}</Text>
+                              To the fullest extent permitted by law, MyWatt shall not be liable for any indirect, incidental, or consequential damages arising from your use of the app.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>10. Governing Law{"\n"}</Text>
+                              These terms are governed by the laws of United Arab Emirates. Any disputes will be resolved in the courts of Emirate of Dubai.{"\n\n"}
+          
+                              <Text style={{ fontWeight: "bold" }}>11. Contact Us{"\n"}</Text>
+                              If you have questions about these terms, contact us at:{"\n"}
+                              MyWatt{"\n"}
+                              Email: mywattapp@gmail.com{"\n"}
+                              </Text>
+                              </Text>
+                          </ScrollView>
+            <TouchableOpacity onPress={navigation.navigate("Login")} style={styles.signUpButton}>
+              <Text style={styles.signUpButtonText}>Sign Up</Text>
+            </TouchableOpacity>
+            </View>
+            </View>
+    </Modal>
+    </ScrollView>
   );
 }
 
