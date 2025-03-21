@@ -14,7 +14,6 @@ import SettingsScreen from './settings';
 import HomeScreen from './Home';
 import LoginScreen from './login';
 import RegistrationScreen from './registration';
-import RegistrationScreen2 from './registration2';
 import CoverScreen from './cover';
 import ProfileSettings from './ProfileSettings';
 import LegalSettings from './LegalSettings';
@@ -147,7 +146,7 @@ export default function IndexScreen() {
       <Stack.Navigator initialRouteName="Cover" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Cover" component={CoverScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Registration" component={RegistrationScreen2} options={{ headerShown: false }} />
+          <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }} />
           <Stack.Screen name="HousesScreen" component={HousesScreen}/>
         <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
           <Stack.Screen name="ProfileSettings" component={ProfileSettings} />

@@ -40,7 +40,6 @@ export default function RegistrationScreen() {
 
   const handleDateChange = (event, selectedDate) => {
     if (Platform.OS === 'web') {
-     
       const date = new Date(event.target.value);
       setDateOfBirth(date);
       setErrors(prev => ({ ...prev, dateOfBirth: '' }));
@@ -65,7 +64,6 @@ export default function RegistrationScreen() {
   };
 
   const handleSignUp = async () => {
-   
     const newErrors = {
       name: '',
       email: '',
@@ -119,7 +117,6 @@ export default function RegistrationScreen() {
       return; 
     }
 
-   
     const role = userType === 'Home User' ? 'Home User' : 'Home Manager';
 
 
@@ -135,13 +132,12 @@ export default function RegistrationScreen() {
     setLoading(true);
   //--------------------------------------integration--------------------------------//
     try {
-     
       const response = await axios.post('http://localhost:5003/register', userData);
       
       if (response.data.success) {
         setLoading(false);
         alert('Registration Successful!');
-        navigation.navigate('IndexTabs');
+        navigation.navigate('Login');
       } else {
         setLoading(false);
         setErrors(prev => ({ 
@@ -153,7 +149,6 @@ export default function RegistrationScreen() {
       setLoading(false);
       console.error('Error:', error);
       
-     
       if (error.response && error.response.data && error.response.data.error) {
         setErrors(prev => ({ ...prev, general: error.response.data.error }));
       } else {

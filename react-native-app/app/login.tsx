@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function LoginScreen() {
-  const router = useRouter();
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -62,7 +60,6 @@ export default function LoginScreen() {
         setLoading(false);
         
         if (response.data.success) {
-         
           const userData = {
             userUuid: response.data.user_uuid,
             role: response.data.role,
@@ -78,8 +75,12 @@ export default function LoginScreen() {
           await AsyncStorage.setItem('userData', JSON.stringify(userData));
           await AsyncStorage.setItem('householdId', response.data.household_id);
         
-          navigation.navigate('IndexTabs');
-        } else {
+          navigation.navigate('HousesScreen');
+        } 
+        if (email == "homeManager@myWatt.com") {
+          navigation.navigate('PropertyManagerScreen');
+        }
+        else {
           setErrors({
             ...newErrors,
             general: response.data.error || 'Login failed. Please try again.'
