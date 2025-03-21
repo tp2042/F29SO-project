@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ImageBackground, ActivityIndicator } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ImageBackground, ActivityIndicator, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
@@ -63,7 +63,7 @@ export default function HomeScreen() {
     const [householdId, setHouseholdId] = useState(null);
     const [userId, setUserId] = useState(null);
     const [leaderboard, setLeaderboard] = useState([]);
-    const [WattPoints, setWattPoints] = useState(0);
+    const [WattPoints, setWattPoints] = useState(72);
   
     useEffect(() => {
         const fetchLeaderboardData = async () => {
@@ -239,31 +239,37 @@ export default function HomeScreen() {
         ? require("../assets/images/gamification_desktop.jpg") 
         : require("../assets/images/gamification_mobile.jpg");  
 
-    // Default devices list if API call fails
-    const defaultDevices = [
-        { name: "Bedroom Lights", icon: "sunny-outline", isPressed: false },
-        { name: "Security", icon: "shield-outline", isPressed: false },
-        { name: "Lock", icon: "lock-closed-outline", isPressed: false },
-        { name: "Robo", icon: "hardware-chip-outline", isPressed: false }
-    ];
+    {/* Weather API */}
+    const [weather, setWeather] = useState<{ temp: number; description: string } | null>(null);
+    useEffect(() => {
+        const apiKey = 'd0a8acdd23e7995e921ab1c49957c17d';
+        const city = 'Dubai';
 
-    const displayDevices = devices.length > 0 ? devices.map(device => ({
-        name: device.device_name || "Device",
-        icon: getIconForDevice(device.device_type),
-        isPressed: device.status === "on",
-        id: device.device_id
-    })) : defaultDevices;
-
+        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.cod === 200) {
+            const tempCelsius = parseFloat((data.main.temp - 273.15).toFixed(2));
+            const description = data.weather[0].description;
+            setWeather({ temp: tempCelsius, description });
+            }
+        })
+        .catch((err) => console.error('Error fetching weather:', err));
+    }, []);
+    
     return (
         <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
-            <TouchableOpacity>
-                <Ionicons name="help-circle-outline" size={28} color="#6A5AE0" />
-            </TouchableOpacity>
-            
+            <View style={{height: 15}}></View>
             <View style={styles.header}>
                 <View>
                     <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>{userName} 👋</Text></Text>
-                    <Text style={[styles.weatherText, { color: isDarkMode ? "#fff" : "#000" }]}>Weather outside is 999°C, hot outside</Text>
+                    {weather ? (
+                        <Text style={[styles.weatherText, { color: textColor }]}>
+                            Weather outside is <Text style={{ fontWeight: 'bold', color: '#8B5CF6' }}>{weather.temp}°C</Text>, {weather.description}
+                        </Text>
+                    ) : (
+                        <Text style={[styles.weatherText, { color: textColor }]}>Loading weather...</Text>
+                    )}
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate("ProfileSettings")}>
                     <View style={styles.profileIcon}>
@@ -287,26 +293,6 @@ export default function HomeScreen() {
                     minimumTrackTintColor="#8B5CF6"
                     maximumTrackTintColor="#e8e8e8"
                     thumbTintColor="#8B5CF6"/>
-            </View>
-
-            {/* Devices */}
-            <View style={[styles.deviceGrid, {backgroundColor: backgroundColor}]}>
-                <Text style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}> Devices</Text>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deviceScroll}>
-                    {isLoadingDevices ? (
-                        <ActivityIndicator size="small" color="#8B5CF6" />
-                    ) : (
-                        displayDevices.map((device, index) => (
-                            <TouchableOpacity 
-                                key={index} 
-                                style={[styles.deviceCard, {backgroundColor: device.isPressed ? "#8B5CF6" : "#e8e8e8"}]}
-                            >
-                                <Ionicons name={device.icon} size={24} color={device.isPressed ? "white" : "black"} />
-                                <Text style={[styles.deviceText, {color: device.isPressed ? "white" : "black"}]}>{device.name}</Text>
-                            </TouchableOpacity>
-                        ))
-                    )}
-                </ScrollView>
             </View>
 
             {/* Gamification Leaderboard */}
@@ -519,20 +505,20 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     profileImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: Platform.OS==="web" ? 60 : 50,
+        height: Platform.OS==="web" ? 60 : 50,
+        borderRadius: Platform.OS==="web" ? 30 : 25,
         borderWidth: 2,
         borderColor: "#ddd",
     },
     greeting: {
-        fontSize: 22,
+        fontSize: Platform.OS==="web" ? 60 : 30,
     },
     boldText: {
         fontWeight: "bold",
     },
     weatherText: {
-        fontSize: 14,
+        fontSize: Platform.OS==="web" ? 20 : 15,
         color: "#777",
     },
     tempControl: {
@@ -542,7 +528,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: Platform.OS==="web" ? 20 : 18,
         fontWeight: "bold",
         marginBottom: 5,
     },
@@ -552,35 +538,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginTop: 5,
     },
-    deviceGrid: {
-        backgroundColor: "#fff",
-        padding: 10,
-        borderRadius: 10,
-        marginTop: 20,
-    },
-    deviceScroll: {
-        flexDirection: "row",
-        paddingVertical: 10,
-        paddingHorizontal: 5,
-        paddingRight: 5
-    },
-    deviceCard: {
-        backgroundColor: "#e8e8e8",
-        width: '42%',
-        padding: 15,
-        borderRadius: 10,
-        alignItems: "center",
-        marginHorizontal: 5,
-    },
-    deviceText: {
-        fontSize: 15,
-        marginTop: 5,
-    },
     energyCard: {
         width: '100%',
-        padding: 20,
         borderRadius: 15,
-        height: 240,
+        height: 250,
         marginTop: 20,
         overflow: "hidden"
     },
@@ -588,14 +549,15 @@ const styles = StyleSheet.create({
         color: "yellow",
         fontSize: 120,
         fontWeight: "bold",
-        marginLeft: '11%',
-        marginTop: 45
+        alignSelf: 'center',
+        marginTop: Platform.OS==="web" ? 75 : 30,
+        justifyContent: 'center'
     },
     wattPointsText: {
         color: "white",
         fontSize: 21,
         fontWeight: "bold",
-        marginLeft: '15%',
+        alignSelf: 'center',
         marginTop: -27
     },
     roomGrid: {
@@ -605,7 +567,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     roomCard: {
-        width: "48%",
+        width: Platform.OS==='web' ? "33%" : '48%',
         padding: 20,
         borderRadius: 15,
         marginBottom: 10,
@@ -654,8 +616,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         padding: 12,
-        borderRadius: 10,
+        borderRadius: 15,
         marginTop: 20,
+        width: '45%'
     },
     insightsButtonText: {
         color: "white",
