@@ -1,6 +1,6 @@
 import { useRoute } from '@react-navigation/native';
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Switch, ScrollView, StyleSheet, Modal, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, Switch, ScrollView, StyleSheet, Modal, TextInput, Platform } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -104,7 +104,7 @@ export default function RoomsDetails() {
 
         {/* Add Device Card */}
         <TouchableOpacity onPress={() => setIsModalVisible(true)} style={[styles.addDeviceCard, {backgroundColor: isDarkMode ? "#A9A9A9" : "#e5e7eb"}]}>
-            <Ionicons name="add" size={32} color="#555" />
+            <Ionicons name="add-circle-outline" size={32} color="#8B5CF6" />
             <Text style={[styles.addText, {color: textColor}]}>Add Device</Text>
         </TouchableOpacity>
         </View>
@@ -147,12 +147,12 @@ const styles = StyleSheet.create({
     roomCard: {
     backgroundColor: "#8B5CF6",
     borderRadius: 15,
-    padding: 16,
+    padding: 20,
     marginBottom: 16,
     },
     roomTitle: {
     color: 'white',
-    fontSize: 30,
+    fontSize: 60,
     fontWeight: "600",
     marginBottom: 8,
     },
@@ -173,15 +173,15 @@ const styles = StyleSheet.create({
     gap: 12,
     },
     deviceCard: {
-    width: "48%",
+    width: Platform.OS==='web' ? "49.5%" : '48%',
     backgroundColor: "#f0f0f0",
     borderRadius: 15,
-    padding: 12,
-    marginBottom: 12,
+    padding: 20,
+    marginBottom: 10,
     position: "relative",
     },
     deviceName: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "500",
     marginBottom: 8,
     },
@@ -198,12 +198,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     },
     addDeviceCard: {
-    width: "48%",
-    height: 100,
+    width: Platform.OS==='web' ? "49.5%" : '48%',
     backgroundColor: "#e5e7eb",
-    borderRadius: 12,
+    borderRadius: 15,
+    position: 'relative',
     justifyContent: "center",
     alignItems: "center",
+    padding: 10
     },
     addText: {
     marginTop: 8,

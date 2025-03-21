@@ -340,11 +340,11 @@ const styles = StyleSheet.create({
   profilesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Platform.OS === 'web' ? 40 : 15,
+    justifyContent: 'space-between',
     marginBottom: Platform.OS === 'web' ? 50 : 30,
   },
   profileCard: {
-    width: Platform.OS === 'web' ? 'calc(25% - 30px)' : '48%',
+    width: Platform.OS === 'web' ? '22%' : '48%',
     borderRadius: Platform.OS === 'web' ? 40 : 30,
     padding: Platform.OS === 'web' ? 40 : 30,
     alignItems: 'center',
@@ -352,6 +352,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     position: 'relative',
     minHeight: Platform.OS === 'web' ? 300 : 'auto',
+    marginBottom: 10
   },
   selectedCard: {
     shadowColor: '#3B82F6',

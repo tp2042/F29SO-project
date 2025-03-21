@@ -22,6 +22,7 @@ export default function HomeScreen() {
     const WattPoints = 72; {/* For random = Math.floor(Math.random() * 300) + 30; */}
     const isWeb = Platform.OS === 'web';
 
+    {/*
     const chartWidth = isWeb 
     ? Math.min(Math.max(screenWidth * 0.6, 500), 800)
     : screenWidth - 32;
@@ -35,7 +36,7 @@ export default function HomeScreen() {
         { day: "Fri", usage: 25 },
         { day: "Sat", usage: 38 },
     ];
-    const maxUsage = Math.max(...data.map((item) => item.usage));
+    const maxUsage = Math.max(...data.map((item) => item.usage)); */}
 
     useEffect(() => {
             navigation.setOptions({ headerShown: false });
@@ -44,15 +45,39 @@ export default function HomeScreen() {
     const backgroundImage = screenWidth > 800
         ? require("../assets/images/gamification_desktop.jpg") 
         : require("../assets/images/gamification_mobile.jpg");  
+    
+    {/* Weather API */}
+        const [weather, setWeather] = useState<{ temp: number; description: string } | null>(null);
+        useEffect(() => {
+            const apiKey = 'd0a8acdd23e7995e921ab1c49957c17d';
+            const city = 'Dubai';
+
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.cod === 200) {
+                const tempCelsius = parseFloat((data.main.temp - 273.15).toFixed(2));
+                const description = data.weather[0].description;
+                setWeather({ temp: tempCelsius, description });
+                }
+            })
+            .catch((err) => console.error('Error fetching weather:', err));
+        }, []);
 
     return (
         <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
             <View style={{height: 15}}></View>
             <View style={styles.header}>
                 <View>
-                    <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>Tushu 👋</Text></Text>
-                    <Text style={[styles.weatherText, { color: isDarkMode ? "#fff" : "#000" }]}>Weather outside is 999°C, hot outside</Text>
-                </View>
+                    <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>Maria 👋</Text></Text>
+                    {weather ? (
+                        <Text style={[styles.weatherText, { color: textColor }]}>
+                            Weather outside is <Text style={{ fontWeight: 'bold', color: '#8B5CF6' }}>{weather.temp}°C</Text>, {weather.description}
+                        </Text>
+                    ) : (
+                        <Text style={[styles.weatherText, { color: textColor }]}>Loading weather...</Text>
+                    )}
+                </View>  
                 <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
                 <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
                 </TouchableOpacity>
@@ -73,20 +98,7 @@ export default function HomeScreen() {
                     thumbTintColor="#8B5CF6"/>
             </View>
 
-            {/* Devices */}
-            <View style={[styles.deviceGrid, {backgroundColor: backgroundColor}]}>
-                <Text style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}> Devices</Text>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deviceScroll}>
-                    {devices.map((device, index) => (
-                        <TouchableOpacity key={index} style={[styles.deviceCard, {backgroundColor: device.isPressed ? "#8B5CF6" : "#e8e8e8"}]} >
-                            <Ionicons name={device.icon} size={24} color="black" />
-                            <Text style={styles.deviceText}>{device.name}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
-
-            {/* Energy usage graph */}
+            {/* Energy usage graph 
             <TouchableOpacity onPress={() => navigation.navigate("EnergyTrackingScreen", { propertyName: "my home" })}>
             <View style={styles.chartCard}>
                         <Text style={styles.chartTitle}>Electricity Usage</Text>
@@ -145,7 +157,7 @@ export default function HomeScreen() {
                             />
                         </ScrollView>
                         </View>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
             
             {/* Gamification Leaderboard */}
             <ImageBackground source={backgroundImage} resizeMode="cover" style={styles.energyCard} imageStyle={{ width: "100%", height: "100%", borderRadius: 15, alignSelf: "center" }}>
@@ -156,7 +168,7 @@ export default function HomeScreen() {
             {/* Rooms */}
             <View style={styles.roomGrid}>
                 {rooms.map((room, index) => (
-                    <TouchableOpacity key={index} style={[styles.roomCard, { backgroundColor: room.bgColor }]} onPress={() => navigation.navigate(room.name)}>
+                    <TouchableOpacity key={index} style={[styles.roomCard, { backgroundColor: room.bgColor }]} onPress={() => navigation.navigate('RoomsDetails', { roomName: room.name})}>
                         <Text style={styles.roomText}>{room.name}</Text>
                     </TouchableOpacity>
                 ))}
@@ -165,25 +177,17 @@ export default function HomeScreen() {
     );
 }
 
-const devices = [
-    { name: "Bedroom Lights", icon: "sunny-outline", isPressed: false },
-    { name: "Security", icon: "shield-outline", isPressed: false },
-    { name: "Lock", icon: "lock-closed-outline", isPressed: false },
-    { name: "Robo", icon: "hardware-chip-outline", isPressed: false }
-];
 
 const lightModeRooms = [
-    { name: "Bathroom", bgColor: "#DCC7FF" },
     { name: "Kitchen", bgColor: "#B8E4F0" },
     { name: "Living Room", bgColor: "#A3E4D7" },
-    { name: "Bedroom", bgColor: "#AED6F1" }
+    { name: "Master Bedroom", bgColor: "#DCC7FF" },
 ];
 
 const darkModeRooms = [
-    { name: "Bathroom", bgColor: "#7D5CD3" }, 
     { name: "Kitchen", bgColor: "#4DA6C3" },  
     { name: "Living Room", bgColor: "#3DA98F" }, 
-    { name: "Bedroom", bgColor: "#4A90E2" }   
+    { name: "Master Bedroom", bgColor: "#7D5CD3" }   
 ];
 
 const styles = StyleSheet.create({
@@ -199,20 +203,20 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     profileImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: Platform.OS==="web" ? 60 : 50,
+        height: Platform.OS==="web" ? 60 : 50,
+        borderRadius: Platform.OS==="web" ? 30 : 25,
         borderWidth: 2,
         borderColor: "#ddd",
     },
     greeting: {
-        fontSize: 22,
+        fontSize: Platform.OS==="web" ? 60 : 30,
     },
     boldText: {
         fontWeight: "bold",
     },
     weatherText: {
-        fontSize: 14,
+        fontSize: Platform.OS==="web" ? 20 : 15,
         color: "#777",
     },
     tempControl: {
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: Platform.OS==="web" ? 20 : 18,
         fontWeight: "bold",
         marginBottom: 5,
     },
@@ -246,7 +250,7 @@ const styles = StyleSheet.create({
     },
     deviceCard: {
         backgroundColor: "#e8e8e8",
-        width: '42%',
+        width: Platform.OS==="web" ? '75%' : '42%',
         padding: 15,
         borderRadius: 10,
         alignItems: "center",
@@ -267,7 +271,7 @@ const styles = StyleSheet.create({
     energyCard: {
         width: '100%',
         borderRadius: 15,
-        height: 240,
+        height: 250,
         marginTop: 20,
         overflow: "hidden"
     },
@@ -275,14 +279,15 @@ const styles = StyleSheet.create({
         color: "yellow",
         fontSize: 120,
         fontWeight: "bold",
-        marginLeft: '11%',
-        marginTop: 45
+        alignSelf: 'center',
+        marginTop: Platform.OS==="web" ? 75 : 30,
+        justifyContent: 'center'
     },
     wattPointsText: {
         color: "white",
         fontSize: 21,
         fontWeight: "bold",
-        marginLeft: '15%',
+        alignSelf: 'center',
         marginTop: -27
     },
     roomGrid: {
@@ -292,7 +297,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     roomCard: {
-        width: "48%",
+        width: Platform.OS==='web' ? "33%" : '48%',
         padding: 20,
         borderRadius: 15,
         marginBottom: 10,

@@ -45,6 +45,7 @@ export default function RoomsScreen() {
 
     return (
     <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
+        <View style={{padding: 10}}></View>
         <Text style={[styles.header, {color: textColor}]}>Rooms</Text>
         <View style={styles.roomsGrid}>
         {rooms.map((room) => (
@@ -53,7 +54,7 @@ export default function RoomsScreen() {
             style={styles.roomCard} 
             onPress={() => navigation.navigate('RoomsDetails', { roomName: room.name})}
             >
-            <Ionicons name={room.icon} size={40} color="#8B5CF6" />
+            <Ionicons name={room.icon} size={45} color="#8B5CF6" />
             <Text style={styles.roomName}>{room.name}</Text>
             <TouchableOpacity onPress={() => deleteRoom(room.id)} style={styles.deleteButton}>
                 <Ionicons name="trash" size={20} color="red" />
@@ -96,7 +97,7 @@ export default function RoomsScreen() {
                                 >
                                     <Ionicons 
                                         name={icon} 
-                                        size={28} 
+                                        size={30} 
                                         color={selectedIcon === icon ? '#fff' : '#8B5CF6'} 
                                     />
                                 </TouchableOpacity>
@@ -119,18 +120,18 @@ export default function RoomsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20 },
-    header: { fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
+    header: { fontSize: 30, fontWeight: 'bold', marginBottom: 20 },
     roomsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
     roomCard: { 
         width: '48%', 
         backgroundColor: 'white', 
         borderRadius: 15, 
-        padding: 20, 
+        padding: 24, 
         alignItems: 'center', 
         marginBottom: 15, 
         position: 'relative'
     },
-    roomName: { fontSize: 18, fontWeight: '500', marginTop: 10 },
+    roomName: { fontSize: 20, fontWeight: '500', marginTop: 10 },
     deleteButton: { position: 'absolute', top: 10, right: 10 },
     addRoomCard: { 
         width: '48%', 

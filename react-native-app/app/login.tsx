@@ -42,6 +42,9 @@ export default function LoginScreen() {
     if (!newErrors.email && !newErrors.password) {
       navigation.navigate('HousesScreen');
     }
+    if (!newErrors.email && !newErrors.password && email=="dd@dd.dd") {
+      navigation.navigate('PropertyManager');
+    }
   };
 
   return (

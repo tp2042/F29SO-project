@@ -303,6 +303,15 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     lineHeight: Platform.OS === 'web' ? 24 : 18,
   },
-  button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "15%", alignItems: "center", marginVertical: 5, right: 25},
+  button: { 
+    backgroundColor: "#8B5CF6", 
+    padding: 12, 
+    borderRadius: 25, 
+    width: Platform.OS === 'web' ? "15%" : '45%', 
+    alignItems: "center", 
+    marginVertical: 5, 
+    right: 15,
+
+  },
   buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
 });

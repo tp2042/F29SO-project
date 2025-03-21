@@ -149,11 +149,8 @@ export default function PropertyManagerScreen() {
           </View>
           
           <View style={styles.profileContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop' }}
-              style={styles.profileImage}
-            />
+            <TouchableOpacity onPress={() => navigation.navigate('managerSettings')}>
+              <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
             </TouchableOpacity>
           </View>
         </View>
@@ -299,9 +296,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   profileImage: {
-    width: '100%',
-    height: '100%',
-  },
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: "#ddd",
+},
   content: {
     flex: 1,
   },

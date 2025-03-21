@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, registerCallableModule } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, registerCallableModule, Platform } from 'react-native';
 import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +25,7 @@ import EnergyTrackingScreen from './energyTracking';
 import PrivacySettings from './PrivacySettings';
 import SupportScreen from './Support';
 import HousesScreen from './Houses';
+import managerSettingsScreen from './managerSettings';
 
 
 const Tab = createBottomTabNavigator();
@@ -83,7 +84,7 @@ function TabNavigator() {
     <Tab.Navigator screenOptions={{tabBarShowLabel: false,
       tabBarStyle: {
         backgroundColor: '#8B5CF6',
-        height: '8%',
+        height: Platform.OS==="web" ? '8%' : '6%',
         paddingLeft: '3%',
         paddingRight: '3%',
       },
@@ -106,6 +107,15 @@ function TabNavigator() {
     options={{
       tabBarIcon: ({ color, size }) => (
         <Ionicons name="bed-outline" size={size} color={color} />
+      ),
+    }} 
+  />
+    <Tab.Screen 
+    name="Energy tracking" 
+    component={EnergyTrackingScreen} 
+    options={{
+      tabBarIcon: ({ color, size }) => (
+        <Ionicons name="flash-outline" size={size} color={color} />
       ),
     }} 
   />
@@ -142,6 +152,7 @@ export default function IndexScreen() {
         <Stack.Screen name="HousesScreen" component={HousesScreen}/>
         <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="PropertyManager" component={PropertyManagerScreen}/>
+        <Stack.Screen name="managerSettings" component={managerSettingsScreen} />
         <Stack.Screen name="EnergyTrackingScreen" component={EnergyTrackingScreen}/>
         <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
         <Stack.Screen name="LegalSettings" component={LegalSettings}/>
