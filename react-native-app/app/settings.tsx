@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -19,7 +19,6 @@ export default function SettingsScreen() {
     const settingsOptions = [
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
         { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySettings" },
-        { title: "Energy and Usage Monitoring", subtitle: "Energy Tracking, Usage reports", screen: "EnergyTrackingScreen", params: { propertyName: 'My Home' } },
         { title: "Support", subtitle: "Help Center, FAQs, Contact Support", screen: "SupportScreen" },
         { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
@@ -35,7 +34,7 @@ export default function SettingsScreen() {
             <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Settings</Text>
             
             {settingsOptions.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.settingItem} onPress={() => navigation.getParent()?.navigate(item.screen)}>
+                <TouchableOpacity key={index} style={styles.settingItem} onPress={() => navigation.navigate(item.screen)}>
                     <View>
                         <Text style={[styles.settingTitle, { color: isDarkMode ? "#fff" : "#000" }]}>{item.title}</Text>
                         <Text style={[styles.settingSubtitle, { color: isDarkMode ? "#fff" : "#000" }]}>{item.subtitle}</Text>
@@ -67,8 +66,11 @@ const styles = StyleSheet.create({
     settingItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: "#ddd" },
     settingTitle: { fontSize: 18, fontWeight: "bold" },
     settingSubtitle: { fontSize: 14, color: "#777" },
-    footer: { alignItems: "center", marginTop: 20 },
-    button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "30%", alignItems: "center", marginVertical: 5 },
+    footer: { alignItems: "center", marginTop: 50, 
+    },
+    button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, 
+        width: Platform.OS==="web" ? "20%" : '42%',
+        alignItems: "center", marginVertical: 5 },
     buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
     houseId: { color: "gray", marginTop: 10 }
 });

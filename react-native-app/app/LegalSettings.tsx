@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -162,7 +162,8 @@ export default function LegalSettings() {
                             >
                                 <View style={styles.modalContainer}>
                                     <View style={[styles.modalContent, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
-                                        <Text style={[styles.modalTitle, { color: textColor }]}>Are you sure? Your account will be permanently deleted.</Text>
+                                        <Text style={[styles.modalTitle, { color: textColor }, {marginBottom: 0}]}>Are you sure? </Text>
+                                        <Text style={[styles.modalTitle, { color: textColor }]}>Your account will be permanently deleted.</Text>
 
                                 <View style={styles.modalButtons}>
                                 <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
@@ -190,11 +191,15 @@ export default function LegalSettings() {
         settingTitle: { fontSize: 18, fontWeight: "bold" },
         settingSubtitle: { fontSize: 14, color: "#777" },
         footer: { alignItems: "center", marginTop: 20 },
-        button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "30%", alignItems: "center", marginVertical: 5 },
+        button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, 
+            width: Platform.OS==="web" ? "18%" : '50%', 
+            alignItems: "center", marginVertical: 5, },
         buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
         houseId: { color: "gray", marginTop: 10 },
         modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
-        modalContent: { width: '54%', borderRadius: 15, padding: 20 },
+        modalContent: { 
+            width: Platform.OS==="web" ? '54%' : '80%', 
+            borderRadius: 15, padding: 20 },
         modalTitle: { fontSize: 22, fontWeight: '600', marginBottom: 15, alignSelf: 'center'},
         modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
         cancelButton: { padding: 10 },

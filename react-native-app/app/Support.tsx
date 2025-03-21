@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal, Linking } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal, Linking, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -87,8 +87,7 @@ export default function SupportScreen() {
                 <View style={styles.contactUs}>
                     <Text style={[styles.settingTitle, {color: '#fff'}, {fontSize: 30}]}>Contact Us</Text>
                     <Text style={[{color: '#fff'}, {fontSize: 20}]}>
-                        Adress: 
-                        Email: mywattapp@gmail.com
+                        mywattapp@gmail.com
                     </Text>
                     <View style={styles.links}>
                     <TouchableOpacity style={styles.linksicons} onPress={() => Linking.openURL('https://www.instagram.com/mywatt_app?igsh=MzRlODBiNWFlZA==')}>
@@ -129,7 +128,7 @@ export default function SupportScreen() {
         contactUs: {
             alignItems: "center",
             padding: 20,
-            width: '30%',
+            width: Platform.OS==="web" ? '30%' : '90%',
             backgroundColor: '#8B5CF6',
             flex: 1,
             alignSelf: 'center',
