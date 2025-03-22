@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, Image, Pressable, Dimensions, Modal, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Image, Pressable, Dimensions, Modal, TextInput, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useNavigation } from "@react-navigation/native";
-import ProfileSettings from './ProfileSettings';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import Clipboard from '@react-native-clipboard/clipboard';
+const API_URL = 'http://localhost:5003'; // Replace with your actual API URL
 const { width } = Dimensions.get('window');
 const isSmallDevice = width < 375;
 const CARD_GAP = Platform.OS === 'web' ? 16 : 8;
@@ -15,72 +17,225 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export default function PropertyManagerScreen() {
   const router = useRouter();
   const navigation = useNavigation();
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newProperty, setNewProperty] = useState({
-    houseId: '',
-    email: '',
-    password: '',
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [currentHouseCode, setCurrentHouseCode] = useState('');
+  const [currentHouseName, setCurrentHouseName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState([]);
+  const [userName, setUserName] = useState('User');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  
+  // For creating a new house
+  const [newHouse, setNewHouse] = useState({
+    houseName: '',
   });
-  const [errors, setErrors] = useState({
-    houseId: '',
-    email: '',
-    password: '',
-  });
+  
+  const [error, setError] = useState('');
 
-  const properties = [
-    { id: 'home', name: 'My Home', icon: 'checkmark-circle', color: '#8B5CF6', isMain: true },
-    { id: 'ss-bay', name: 'SS-BAY-12', icon: 'business', color: '#60A5FA' },
-    { id: 'b-nov', name: 'B-NOV-1829', icon: 'home', color: '#60A5FA' },
-    { id: 'cs', name: 'CS-849', icon: 'home', color: '#60A5FA' },
-    { id: 'tu', name: 'TU-299-I', icon: 'business', color: '#60A5FA', isLarge: true },
-  ];
+  useEffect(() => {
+    fetchUserHouses();
+    fetchUserInfo();
+  }, []);
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const fetchUserInfo = async () => {
+    try {
+      const storedName = await AsyncStorage.getItem('name');
+      if (storedName) {
+        setUserName(storedName);
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
   };
 
-  const validateForm = () => {
-    const newErrors = {
-      houseId: '',
-      email: '',
-      password: '',
-    };
-    let isValid = true;
-
-    if (!newProperty.houseId.trim()) {
-      newErrors.houseId = 'House name/ID is required';
-      isValid = false;
+  const fetchUserHouses = async () => {
+    try {
+      setLoading(true);
+      const userId = await AsyncStorage.getItem('userId');
+      
+      if (!userId) {
+        console.error('User ID not found');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('Fetching houses for user ID:', userId);
+      const response = await axios.get(`${API_URL}/get_managed_houses?user_id=${userId}`);
+      console.log('API Response:', response.data);
+      
+      if (response.data.houses && Array.isArray(response.data.houses)) {
+        // Transform API response to match UI expectations
+        const formattedHouses = response.data.houses.map(house => ({
+          id: house.house_id ? String(house.house_id) : 'unknown_id', // Converting to string to be safe
+          hid: house.h_id , // Use h_id if available, otherwise fall back to household_id
+          name: house.house_name,
+          icon: 'checkmark-circle', // Default for houses the user manages
+          color: '#8B5CF6', // Default color
+          is_owner: true // Since they are the manager
+        }));
+        console.log('Formatted houses:', formattedHouses);
+        setProperties(formattedHouses);
+      } else {
+        console.error('No houses array in response:', response.data);
+        setProperties([]);
+      }
+    } catch (error) {
+      console.error('Error fetching houses:', error);
+      Alert.alert('Error', 'Failed to load your properties');
+    } finally {
+      setLoading(false);
     }
-
-    if (!newProperty.email.trim()) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!validateEmail(newProperty.email)) {
-      newErrors.email = 'Please enter a valid email';
-      isValid = false;
-    }
-
-    if (!newProperty.password.trim()) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    } else if (newProperty.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
   };
-
-  const handleAddProperty = () => {
-    if (validateForm()) {
-      setShowAddModal(false);
-      setNewProperty({
-        houseId: '',
-        email: '',
-        password: '',
+  
+  const handleCreateHouse = async () => {
+    if (!newHouse.houseName.trim()) {
+      setError('House name is required');
+      return;
+    }
+    
+    try {
+      setError('');
+      const userId = await AsyncStorage.getItem('userId');
+      
+      if (!userId) {
+        setError('User not found. Please log in again.');
+        return;
+      }
+      
+      const response = await axios.post(`${API_URL}/create_house`, {
+        manager_id: userId,
+        house_name: newHouse.houseName.trim()
       });
+      
+      console.log('Create house response:', response.data);
+      
+      if (response.data.success) {
+        setShowCreateModal(false);
+        
+        // Important: Make sure we extract the h_id correctly
+        const houseId = response.data.house_id || ''; 
+        const houseName = response.data.house_name || newHouse.houseName.trim();
+        
+        console.log('Setting house data for sharing:', { houseId, houseName });
+        
+        // Set data for sharing modal
+        setCurrentHouseCode(houseId);
+        setCurrentHouseName(houseName);
+        
+        // Clear the form
+        setNewHouse({ houseName: '' });
+        
+        // Show the share modal
+        setShowShareModal(true);
+        
+        // Refresh houses list
+        fetchUserHouses();
+      } else {
+        setError(response.data.error || 'Failed to create house');
+      }
+    } catch (error) {
+      console.error('Error creating house:', error);
+      setError('Error creating house. Please try again.');
+    }
+  };
+
+  const handleDeleteHouse = async () => {
+    if (!selectedProperty) {
+      Alert.alert('Error', 'No property selected');
+      return;
+    }
+    
+    try {
+      setDeleteLoading(true);
+      const userId = await AsyncStorage.getItem('userId');
+      
+      if (!userId) {
+        Alert.alert('Error', 'User not found. Please log in again.');
+        return;
+      }
+      
+      const property = properties.find(p => p.id === selectedProperty);
+      if (!property) {
+        Alert.alert('Error', 'Property not found');
+        return;
+      }
+      
+      // Call the delete house API
+      const response = await axios.post(`${API_URL}/delete_house`, {
+        manager_id: userId,
+        house_id: property.id
+      });
+      
+      console.log('Delete house response:', response.data);
+      
+      if (response.data.success) {
+        // Close the delete modal
+        setShowDeleteModal(false);
+        
+        // Reset selected property
+        setSelectedProperty(null);
+        
+        // Clear current house from AsyncStorage if it was the deleted one
+        const currentHouseId = await AsyncStorage.getItem('current_house_id');
+        if (currentHouseId === property.id) {
+          await AsyncStorage.removeItem('current_house_id');
+          await AsyncStorage.removeItem('current_house_name');
+          await AsyncStorage.removeItem('current_house_hid');
+        }
+        
+        // Show success message
+        Alert.alert('Success', `${property.name} has been deleted successfully`);
+        
+        // Refresh houses list
+        fetchUserHouses();
+      } else {
+        Alert.alert('Error', response.data.error || 'Failed to delete house');
+      }
+    } catch (error) {
+      console.error('Error deleting house:', error);
+      Alert.alert('Error', 'Error deleting house. Please try again.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleSelectProperty = async (property) => {
+    try {
+      setSelectedProperty(property.id);
+      
+      // Save selected house to AsyncStorage
+      await AsyncStorage.setItem('current_house_id', property.id);
+      await AsyncStorage.setItem('current_house_name', property.name);
+      await AsyncStorage.setItem('current_house_hid', property.hid || property.id);
+    } catch (error) {
+      console.error('Error saving property selection:', error);
+      Alert.alert('Error', 'Could not select property');
+    }
+  };
+
+  const handleManageProperty = () => {
+    if (selectedProperty) {
+      const property = properties.find(p => p.id === selectedProperty);
+      if (property) {
+        router.push({
+          pathname: '/energyManager',
+          params: { 
+            propertyName: property.name,
+            propertyId: property.id,
+            propertyHid: property.hid || property.id
+          }
+        });
+      }
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (currentHouseCode) {
+      Clipboard.setString(currentHouseCode);
+      Alert.alert('Copied', 'House code copied to clipboard');
     }
   };
 
@@ -100,35 +255,42 @@ export default function PropertyManagerScreen() {
           isSelected && styles.selectedCard,
           animatedStyle,
         ]}
-        onPress={() => setSelectedProperty(property.id)}
+        onPress={() => handleSelectProperty(property)}
       >
-        <View style={[
-          styles.propertyContent,
-          property.isLarge ? styles.largePropertyContent : styles.squarePropertyContent
-        ]}>
+        <View style={styles.propertyContent}>
           <Ionicons 
             name={property.icon} 
-            size={property.isMain ? (Platform.OS === 'web' ? 24 : 28) : (Platform.OS === 'web' ? 20 : 22)} 
+            size={24} 
             color="white"
           />
-          <Text style={[
-            styles.propertyName,
-            property.isMain && styles.mainPropertyName
-          ]}>
-            {property.name}
-          </Text>
+          
+          <View style={styles.propertyInfoContainer}>
+            <Text style={styles.propertyName}>
+              {property.name || "Unnamed House"}
+            </Text>
+            <Text style={styles.propertyId}>
+              ID: {property.hid || "N/A"}
+            </Text>
+          </View>
         </View>
+        
         {isSelected && (
-          <TouchableOpacity 
-            style={styles.manageButton}
-            onPress={() => router.push({
-              pathname: '/energyTracking',
-              params: { propertyName: property.name }
-            })}
-          >
-            <Text style={styles.manageButtonText}>Manage</Text>
-            <Ionicons name="arrow-forward" size={14} color="white" />
-          </TouchableOpacity>
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.manageButton}
+              onPress={handleManageProperty}
+            >
+              <Text style={styles.manageButtonText}>Manage</Text>
+              <Ionicons name="arrow-forward" size={14} color="white" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.deleteButton}
+              onPress={() => setShowDeleteModal(true)}
+            >
+              <Ionicons name="trash-outline" size={14} color="white" />
+            </TouchableOpacity>
+          </View>
         )}
       </AnimatedPressable>
     );
@@ -140,7 +302,7 @@ export default function PropertyManagerScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.greeting}>
-              Hey, <Text style={styles.name}>Maria</Text>
+              Hey, <Text style={styles.name}>{userName}</Text>
               <Text style={styles.wave}> 👋</Text>
             </Text>
             <Text style={styles.subtitle}>
@@ -156,33 +318,44 @@ export default function PropertyManagerScreen() {
         </View>
 
         <View style={styles.content}>
-          <View style={styles.grid}>
-            {properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </View>
+          {loading ? (
+            <Text style={styles.loadingText}>Loading your properties...</Text>
+          ) : properties.length > 0 ? (
+            <View style={styles.grid}>
+              {properties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>You don't have any properties yet.</Text>
+              <Text style={styles.emptyStateSubText}>Create a new property to get started.</Text>
+            </View>
+          )}
 
+          {/* Floating action button */}
           <TouchableOpacity 
             style={styles.addButton}
-            onPress={() => setShowAddModal(true)}
+            onPress={() => setShowCreateModal(true)}
           >
             <Ionicons name="add" size={24} color="#1F2937" />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Create House Modal */}
       <Modal
-        visible={showAddModal}
+        visible={showCreateModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowAddModal(false)}
+        onRequestClose={() => setShowCreateModal(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add Property</Text>
+              <Text style={styles.modalTitle}>Create New House</Text>
               <TouchableOpacity 
-                onPress={() => setShowAddModal(false)}
+                onPress={() => setShowCreateModal(false)}
                 style={styles.closeButton}
               >
                 <Ionicons name="close" size={24} color="#6B7280" />
@@ -190,56 +363,137 @@ export default function PropertyManagerScreen() {
             </View>
 
             <View style={styles.formGroup}>
-              <Text style={styles.label}>House Name/ID</Text>
+              <Text style={styles.label}>House Name</Text>
               <TextInput
-                style={[styles.input, errors.houseId && styles.inputError]}
-                value={newProperty.houseId}
+                style={[styles.input, error && styles.inputError]}
+                value={newHouse.houseName}
                 onChangeText={(text) => {
-                  setNewProperty(prev => ({ ...prev, houseId: text }));
-                  setErrors(prev => ({ ...prev, houseId: '' }));
+                  setNewHouse(prev => ({ ...prev, houseName: text }));
+                  setError('');
                 }}
-                placeholder="Enter house name or ID"
+                placeholder="Enter house name"
               />
-              {errors.houseId ? <Text style={styles.errorText}>{errors.houseId}</Text> : null}
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={[styles.input, errors.email && styles.inputError]}
-                value={newProperty.email}
-                onChangeText={(text) => {
-                  setNewProperty(prev => ({ ...prev, email: text }));
-                  setErrors(prev => ({ ...prev, email: '' }));
-                }}
-                placeholder="Enter email address"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+            <Text style={styles.infoText}>
+              You'll be assigned as the Home Manager for this house. You can add rooms and invite others to join.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.actionConfirmButton}
+              onPress={handleCreateHouse}
+            >
+              <Text style={styles.actionConfirmButtonText}>Create House</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Share House ID Modal */}
+      <Modal
+        visible={showShareModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowShareModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>House Created!</Text>
+              <TouchableOpacity 
+                onPress={() => setShowShareModal(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={[styles.input, errors.password && styles.inputError]}
-                value={newProperty.password}
-                onChangeText={(text) => {
-                  setNewProperty(prev => ({ ...prev, password: text }));
-                  setErrors(prev => ({ ...prev, password: '' }));
-                }}
-                placeholder="Enter password"
-                secureTextEntry
-              />
-              {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+            <Text style={styles.shareText}>
+              Your new house "<Text style={styles.shareBold}>{currentHouseName || "New House"}</Text>" has been created successfully!
+            </Text>
+            
+            <View style={styles.shareCodeContainer}>
+              <Text style={styles.shareLabel}>Share this code with others to join:</Text>
+              <View style={styles.codeContainer}>
+                <Text style={styles.codeText}>{currentHouseCode || "Code not available"}</Text>
+                <TouchableOpacity 
+                  onPress={copyToClipboard} 
+                  style={styles.copyButton}
+                  disabled={!currentHouseCode}
+                >
+                  <Ionicons name="copy-outline" size={20} color={currentHouseCode ? "#8B5CF6" : "#D1D5DB"} />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity
-              style={styles.addPropertyButton}
-              onPress={handleAddProperty}
+              style={styles.actionConfirmButton}
+              onPress={() => setShowShareModal(false)}
             >
-              <Text style={styles.addPropertyButtonText}>Add Property</Text>
+              <Text style={styles.actionConfirmButtonText}>Done</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete House Confirmation Modal */}
+      <Modal
+        visible={showDeleteModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Delete House</Text>
+              <TouchableOpacity 
+                onPress={() => setShowDeleteModal(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            {selectedProperty && (
+              <Text style={styles.deleteWarningText}>
+                Are you sure you want to delete "
+                <Text style={styles.deleteBold}>
+                  {properties.find(p => p.id === selectedProperty)?.name || "this house"}
+                </Text>
+                "? This action cannot be undone.
+              </Text>
+            )}
+            
+            <Text style={styles.deleteInfoText}>
+              All rooms, devices, and user associations will be permanently removed.
+            </Text>
+
+            <View style={styles.deleteButtonGroup}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowDeleteModal(false)}
+                disabled={deleteLoading}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.deleteConfirmButton}
+                onPress={handleDeleteHouse}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <Text style={styles.deleteConfirmButtonText}>Deleting...</Text>
+                ) : (
+                  <View style={styles.deleteConfirmButtonContent}>
+                    <Ionicons name="trash-outline" size={16} color="white" />
+                    <Text style={styles.deleteConfirmButtonText}>Delete House</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -301,9 +555,32 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderWidth: 2,
     borderColor: "#ddd",
-},
+  },
   content: {
     flex: 1,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 24,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  emptyStateSubText: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
   },
   grid: {
     flexDirection: 'row',
@@ -327,9 +604,15 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   propertyContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center', 
+    paddingVertical: 10,
+  },
+  propertyInfoContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+    width: '100%',
   },
   squarePropertyContent: {
     aspectRatio: 1,
@@ -344,29 +627,52 @@ const styles = StyleSheet.create({
   },
   propertyName: {
     color: 'white',
-    fontSize: Platform.OS === 'web' ? 14 : (isSmallDevice ? 13 : 14),
-    fontWeight: '500',
-    marginTop: 6,
+    fontSize: 18,
+    fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  propertyId: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 12,
+    fontWeight: '500',
   },
   mainPropertyName: {
-    fontSize: Platform.OS === 'web' ? 16 : (isSmallDevice ? 16 : 18),
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: Platform.OS === 'web' ? 8 : 12,
   },
   manageButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     borderRadius: Platform.OS === 'web' ? 12 : 16,
     gap: 6,
-    marginTop: Platform.OS === 'web' ? 8 : 12,
+    flex: 1,
+    marginRight: 6,
+  },
+  deleteButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: Platform.OS === 'web' ? 12 : 16,
   },
   manageButtonText: {
     color: 'white',
-    fontSize: Platform.OS === 'web' ? 12 : 12,
+    fontSize: 14,
     fontWeight: '500',
   },
   addButton: {
@@ -438,14 +744,109 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
-  addPropertyButton: {
-    backgroundColor: '#3B82F6',
+  infoText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 20,
+  },
+  actionConfirmButton: {
+    backgroundColor: '#8B5CF6',
     borderRadius: 12,
     padding: Platform.OS === 'web' ? 16 : 14,
     alignItems: 'center',
     marginTop: 12,
   },
-  addPropertyButtonText: {
+  actionConfirmButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  // Styles for the share modal
+  shareText: {
+    fontSize: 16,
+    color: '#374151',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  shareBold: {
+    fontWeight: '600',
+  },
+  shareCodeContainer: {
+    marginBottom: 24,
+  },
+  shareLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  codeContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  codeText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    flex: 1,
+  },
+  copyButton: {
+    padding: 8,
+  },
+  // Delete modal styles
+  deleteWarningText: {
+    fontSize: 16,
+    color: '#374151',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  deleteBold: {
+    fontWeight: '600',
+    color: '#111827',
+  },
+  deleteInfoText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  deleteButtonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: Platform.OS === 'web' ? 16 : 14,
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  cancelButtonText: {
+    color: '#4B5563',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteConfirmButton: {
+    flex: 1,
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    padding: Platform.OS === 'web' ? 16 : 14,
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  deleteConfirmButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  deleteConfirmButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',

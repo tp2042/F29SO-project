@@ -63,7 +63,7 @@ export default function LoginScreen() {
           const userData = {
             userUuid: response.data.user_uuid,
             role: response.data.role,
-            houseId: response.data.house_id
+         
           };
           
           
@@ -73,17 +73,22 @@ export default function LoginScreen() {
           await AsyncStorage.setItem('user_uuid', response.data.user_uuid);
           await AsyncStorage.setItem("userId", response.data.user_id);
           await AsyncStorage.setItem('userData', JSON.stringify(userData));
-          await AsyncStorage.setItem('householdId', response.data.household_id);
+         
         
-          navigation.navigate('HousesScreen');
-        } 
-        if (email == "homeManager@myWatt.com") {
-          navigation.navigate('PropertyManagerScreen');
-        }
-        else {
+          if (response.data.role === "Home Manager") {
+            navigation.navigate('PropertyManagerScreen');
+          } else if (response.data.role === "Home User") {
+            navigation.navigate('HousesScreen');
+          } else {
+            setErrors({
+              ...newErrors,
+              general: 'Invalid role. Please contact support.',
+            });
+          }
+        } else {
           setErrors({
             ...newErrors,
-            general: response.data.error || 'Login failed. Please try again.'
+            general: response.data.error || 'Login failed. Please try again.',
           });
         }
       } catch (error) {
@@ -91,7 +96,7 @@ export default function LoginScreen() {
         console.error('Login error:', error);
         setErrors({
           ...newErrors,
-          general: 'Network error. Please check your connection and try again.'
+          general: 'Network error. Please check your connection and try again.',
         });
       }
     }

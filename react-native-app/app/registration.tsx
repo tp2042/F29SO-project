@@ -114,7 +114,7 @@ export default function RegistrationScreen() {
 
     
     if (Object.values(newErrors).some(error => error && error !== newErrors.general)) {
-      return; 
+      return;
     }
 
     const role = userType === 'Home User' ? 'Home User' : 'Home Manager';
@@ -126,35 +126,35 @@ export default function RegistrationScreen() {
       password,
       gender,
       date_of_birth: dateOfBirth.toISOString().split('T')[0],
-      role 
+      role
     };
   
     setLoading(true);
-  //--------------------------------------integration--------------------------------//
+    //--------------------------------------integration--------------------------------//
     try {
       const response = await axios.post('http://localhost:5003/register', userData);
-      
+    
       if (response.data.success) {
         setLoading(false);
-        alert('Registration Successful!');
+        alert(response.data.message || 'Registration successful! Please check your email to verify your account before logging in.');
         navigation.navigate('Login');
       } else {
         setLoading(false);
-        setErrors(prev => ({ 
-          ...prev, 
-          general: response.data.error || 'Registration failed' 
+        setErrors(prev => ({
+          ...prev,
+          general: response.data.error || 'Registration failed'
         }));
       }
     } catch (error) {
       setLoading(false);
       console.error('Error:', error);
-      
+    
       if (error.response && error.response.data && error.response.data.error) {
         setErrors(prev => ({ ...prev, general: error.response.data.error }));
       } else {
-        setErrors(prev => ({ 
-          ...prev, 
-          general: 'An error occurred. Please try again.' 
+        setErrors(prev => ({
+          ...prev,
+          general: 'An error occurred. Please try again.'
         }));
       }
     }
