@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -36,7 +36,6 @@ export default function SettingsScreen() {
     const settingsOptions = [
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
         { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySecurity" },
-        { title: "Energy and Usage Monitoring", subtitle: "Energy Tracking, Usage reports", screen: "energyTracking" },
         { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "Support" },
         { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
@@ -88,8 +87,10 @@ const styles = StyleSheet.create({
     settingItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: "#ddd" },
     settingTitle: { fontSize: 18, fontWeight: "bold" },
     settingSubtitle: { fontSize: 14, color: "#777" },
-    footer: { alignItems: "center", marginTop: 20 },
-    button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "30%", alignItems: "center", marginVertical: 5 },
+    footer: { alignItems: "center", marginTop: 50 },
+    button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, 
+        width:Platform.OS==="web" ? "20%" : '42%', 
+        alignItems: "center", marginVertical: 5 },
     buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
     houseId: { color: "gray", marginTop: 10 }
 });

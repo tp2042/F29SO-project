@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal, ActivityIndicator, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Switch, Modal, ActivityIndicator, Alert, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -119,7 +119,7 @@ export default function LegalSettings() {
                     <Text style={{ padding: 16, lineHeight: 22 }}>
                     <Text style={[{color: '#8B5CF6'},{fontSize: 24}]}>Terms of Service{"\n"}{"\n"}</Text>
                     <Text style={[{color: textColor}, {fontSize: 20}]}>
-                    Welcome to MyWatt! These Terms of Service govern your use of our app. By downloading, accessing, or using the app, you agree to these terms. If you do not agree, please do not use the app.{"\n\n"}
+                    Welcome to MyWatt! These Terms of Service govern your use of our app. By downloading, accessing, or using the app, you agree to these terms. If you do not agree, please refrain from using the app.{"\n\n"}
 
                     <Text style={{ fontWeight: "bold" }}>1. Acceptance of Terms{"\n"}</Text>
                     By using MyWatt, you confirm that you have read, understood, and agreed to these Terms of Service. If you are using the app on behalf of an organization, you represent that you have the authority to bind that organization to these terms.{"\n\n"}
@@ -159,9 +159,7 @@ export default function LegalSettings() {
                     <Text style={{ fontWeight: "bold" }}>11. Contact Us{"\n"}</Text>
                     If you have questions about these terms, contact us at:{"\n"}
                     MyWatt{"\n"}
-                    Address{"\n"}
                     Email: mywattapp@gmail.com{"\n"}
-                    Phone: +9710000000000
                     </Text>
                     </Text>
                 </ScrollView> )}
@@ -216,9 +214,7 @@ export default function LegalSettings() {
                     <Text style={{ fontWeight: "bold" }}>8. Contact Us{"\n"}</Text>
                     If you have questions about this Privacy Policy, contact us at:{"\n"}
                     MyWatt{"\n"}
-                    Address{"\n"}
-                    Email: mywattapp@gmail.com{"\n"}
-                    Phone: +9710000000000{"\n\n"}
+                    Email: mywattapp@gmail.com{"\n\n"}
 
                     Thank you for trusting MyWatt!
                     </Text>
@@ -241,7 +237,9 @@ export default function LegalSettings() {
             >
                 <View style={styles.modalContainer}>
                     <View style={[styles.modalContent, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
-                        <Text style={[styles.modalTitle, { color: textColor }]}>Are you sure? Your account will be permanently deleted.</Text>
+                    <Text style={[styles.modalTitle, { color: textColor }, {marginBottom: 0}]}>Are you sure? </Text>
+                    <Text style={[styles.modalTitle, { color: textColor }]}>Your account will be permanently deleted.</Text>
+
 
                         <View style={styles.modalButtons}>
                             <TouchableOpacity 
@@ -281,11 +279,15 @@ const styles = StyleSheet.create({
     settingTitle: { fontSize: 18, fontWeight: "bold" },
     settingSubtitle: { fontSize: 14, color: "#777" },
     footer: { alignItems: "center", marginTop: 20 },
-    button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, width: "30%", alignItems: "center", marginVertical: 5 },
+    button: { backgroundColor: "#8B5CF6", padding: 15, borderRadius: 25, 
+        width: Platform.OS==="web" ? "18%" : '50%',
+        alignItems: "center", marginVertical: 5 },
     buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
     houseId: { color: "gray", marginTop: 10 },
     modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
-    modalContent: { width: '54%', borderRadius: 15, padding: 20 },
+    modalContent: { 
+        width: Platform.OS==="web" ? '54%' : '80%', 
+        borderRadius: 15, padding: 20 },
     modalTitle: { fontSize: 22, fontWeight: '600', marginBottom: 15, alignSelf: 'center'},
     modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
     cancelButton: { padding: 10 },

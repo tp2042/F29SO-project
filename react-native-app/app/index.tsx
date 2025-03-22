@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, registerCallableModule } from 'react-native';
+import { View, Text, Button, TextInput, TouchableOpacity, StyleSheet, registerCallableModule } from 'react-native';
 import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +23,7 @@ import PrivacySettings from './PrivacySettings';
 import managerSettingsScreen from './managerSettings';
 import SupportScreen from './Support';
 import HousesScreen from './Houses';
+import { useEffect } from 'react';
 
 
 
@@ -140,6 +141,13 @@ function TabNavigator() {
   )
 }
 export default function IndexScreen() {
+  useEffect(() => {
+    Text.defaultProps = Text.defaultProps || {};
+    Text.defaultProps.style = { fontFamily: 'Montserrat-Regular' };
+
+    TextInput.defaultProps = TextInput.defaultProps || {};
+    TextInput.defaultProps.style = { fontFamily: 'Montserrat-Regular' };
+  }, []);
   return (
     <ThemeProvider>
     <><NavigationIndependentTree><NavigationContainer>
