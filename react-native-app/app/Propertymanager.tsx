@@ -181,9 +181,9 @@ export default function PropertyManagerScreen() {
         // Clear current house from AsyncStorage if it was the deleted one
         const currentHouseId = await AsyncStorage.getItem('current_house_id');
         if (currentHouseId === property.id) {
-          await AsyncStorage.removeItem('current_house_id');
-          await AsyncStorage.removeItem('current_house_name');
-          await AsyncStorage.removeItem('current_house_hid');
+          await AsyncStorage.removeItem('householdId');
+          await AsyncStorage.removeItem('name');
+          await AsyncStorage.removeItem('hid');
         }
         
         // Show success message
@@ -207,9 +207,9 @@ export default function PropertyManagerScreen() {
       setSelectedProperty(property.id);
       
       // Save selected house to AsyncStorage
-      await AsyncStorage.setItem('current_house_id', property.id);
-      await AsyncStorage.setItem('current_house_name', property.name);
-      await AsyncStorage.setItem('current_house_hid', property.hid || property.id);
+      await AsyncStorage.setItem('householdId', property.id);
+      await AsyncStorage.setItem('name', property.name);
+      await AsyncStorage.setItem('hid', property.hid || property.id);
     } catch (error) {
       console.error('Error saving property selection:', error);
       Alert.alert('Error', 'Could not select property');

@@ -105,7 +105,8 @@ export default function EnhancedEnergyTrackingScreen() {
     }
   };
 
-  const downloadReport = async () => {
+    const downloadReport = async () => {
+    const household_id = await AsyncStorage.getItem('householdId');
     console.log("Download button clicked");
     console.log("household_id:", household_id);
     

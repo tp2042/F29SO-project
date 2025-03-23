@@ -19,12 +19,12 @@ export default function LegalSettings() {
     const textColor = isDarkMode ? "#fff" : "#000";
 
     // API configuration
-    const API_URL = "https://7d2b-2-49-97-246.ngrok-free.app"
+    const API_URL = 'http://localhost:5003';
     // Get user data on component mount
     useEffect(() => {
         const getUserData = async () => {
             try {
-                const userData = await AsyncStorage.getItem('user_uuid');
+                const userData = await AsyncStorage.getItem('userId');
                 if (userData) {
                     // If it's stored as a string
                     setUserUuid(userData);
@@ -41,7 +41,7 @@ export default function LegalSettings() {
     }, []);
 
     const handleDeleteAccount = async () => {
-        if (!userUuid) {
+        if (!userId) {
             Alert.alert("Error", "User ID not found. Please log in again.");
             navigation.navigate("Login");
             return;
@@ -51,12 +51,12 @@ export default function LegalSettings() {
         
         try {
             // Make API call to delete account using Axios
-            console.log(`Making request to: ${API_URL}/delete_account with user_uuid: ${userUuid}`);
+            console.log(`Making request to: ${API_URL}/delete_account with user_uuid: ${userId}`);
             
             const response = await axios({
                 method: 'DELETE',
                 url: `${API_URL}/delete_account`,
-                data: { user_uuid: userUuid }
+                data: { user_id: userId }
             });
             
             // Axios automatically throws errors for non-2xx responses
@@ -65,7 +65,7 @@ export default function LegalSettings() {
             if (response.data.success) {
                 // Clear stored user data
                 await AsyncStorage.removeItem('userData');
-                await AsyncStorage.removeItem('user_uuid');
+                await AsyncStorage.removeItem('user_Id');
                 
                 setModalVisible(false);
                 Alert.alert(

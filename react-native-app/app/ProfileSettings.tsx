@@ -14,7 +14,7 @@ export default function ProfileSettings() {
     const [email, setEmail] = useState("");
     const [household_id, setHouseholdId] = useState("");
     const [password, setPassword] = useState("*****");
-    const [userUuid, setUserUuid] = useState("");
+    const [userId, setUserId] = useState(""); // Changed from userUuid to userId
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const navigation = useNavigation();
@@ -26,27 +26,30 @@ export default function ProfileSettings() {
     const inputBorder = isDarkMode ? "#555" : "#ccc";
     const buttonBackground = '#8B5CF6';
 
+
+    
     // Fetch user data on component mount
     useEffect(() => {
         const getUserData = async () => {
             setIsLoadingData(true);
             try {
-                const storedUserUuid = await AsyncStorage.getItem("user_uuid");
+                // We're now looking for user_id instead of user_uuid
+                const storedUserId = await AsyncStorage.getItem("userId");
                 const storedEmail = await AsyncStorage.getItem("email");
                 const storedName = await AsyncStorage.getItem("name");
-                const householdId = await AsyncStorage.getItem("household");
+                const householdId = await AsyncStorage.getItem("householdId");
 
                 
                 console.log("Retrieved from AsyncStorage:", {
-                    uuid: storedUserUuid,
+                    id: storedUserId,
                     email: storedEmail,
                     name: storedName
                 });
                 
-                if (storedUserUuid) {
-                    setUserUuid(storedUserUuid);
+                if (storedUserId) {
+                    setUserId(storedUserId);
                 } else {
-                    console.warn("No user UUID found in storage");
+                    console.warn("No user ID found in storage");
                 }
                 
                 if (storedEmail) setEmail(storedEmail);
@@ -66,7 +69,7 @@ export default function ProfileSettings() {
     const toggleEdit = () => setIsEditing(!isEditing);
     
     const handleSave = async () => {
-        if (!userUuid) {
+        if (!userId) {
             Alert.alert("Error", "User ID not found. Please log in again.");
             return;
         }
@@ -80,7 +83,7 @@ export default function ProfileSettings() {
         
         // Create the payload exactly as your backend expects
         const payload = {
-            user_uuid: userUuid,
+            user_id: parseInt(userId), // Convert string to integer
             new_name: name
         };
         
@@ -102,7 +105,7 @@ export default function ProfileSettings() {
             if (data.success) {
                 Alert.alert("Success", "Profile updated successfully");
                 // Update the name in AsyncStorage
-                await AsyncStorage.setItem("userName", name);
+                await AsyncStorage.setItem("name", name);
             } else {
                 Alert.alert("Error", data.error || "Failed to update profile");
             }
@@ -162,27 +165,8 @@ export default function ProfileSettings() {
         }
     };
     
-    // For testing purposes - save data to AsyncStorage
-    const saveTestData = async () => {
-        try {
-            await AsyncStorage.setItem("userUuid", "test-uuid-123");
-            await AsyncStorage.setItem("userEmail", "test@example.com");
-            await AsyncStorage.setItem("userName", "Test User");
-            Alert.alert("Test Data Saved", "Test user data has been saved to AsyncStorage");
-            
-            // Reload the data
-            const storedName = await AsyncStorage.getItem("userName");
-            const storedEmail = await AsyncStorage.getItem("userEmail");
-            const storedUuid = await AsyncStorage.getItem("userUuid");
-            
-            setName(storedName || "");
-            setEmail(storedEmail || "");
-            setUserUuid(storedUuid || "");
-        } catch (error) {
-            console.error("Error saving test data:", error);
-            Alert.alert("Error", "Failed to save test data");
-        }
-    };
+    // For testing purposes - save data to AsyncStorage with numeric user_id
+    
 
     return (
         <View style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
@@ -213,7 +197,7 @@ export default function ProfileSettings() {
                     
                     {/* Debug info - remove in production */}
                     <Text style={{color: textColor, fontSize: 12, marginBottom: 10}}>
-                        User ID: {userUuid || "Not set"}
+                        User ID: {userId || "Not set"}
                     </Text>
 
                     {/* Input Fields */}
@@ -268,12 +252,7 @@ export default function ProfileSettings() {
                         </TouchableOpacity>
                         
                         {/* Debug button - remove in production */}
-                        <TouchableOpacity 
-                            style={[styles.Button, { backgroundColor: "#555", marginTop: 10 }]} 
-                            onPress={saveTestData}
-                        >
-                            <Text style={styles.buttonText}>Save Test Data</Text>
-                        </TouchableOpacity>
+                        
                         </>
                     )}
 

@@ -127,7 +127,7 @@ export default function HomeScreen() {
     // Fetch rooms from API
     const fetchRooms = async (household_id) => {
         if (!household_id) return;
-        
+        console.log('hous', household_id)
         setIsLoadingRooms(true);
         try {
             const response = await axios.get(`${API_URL}/rooms/${household_id}`);
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 15,
         marginTop: 20,
-        width: '45%'
+        width: '100%'
     },
     insightsButtonText: {
         color: "white",

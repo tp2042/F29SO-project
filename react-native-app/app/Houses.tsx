@@ -51,6 +51,7 @@ export default function HousesScreen() {
                 // Transform API response to match UI expectations
                 const formattedHouses = response.data.houses.map(house => ({
                     id: house.house_id,
+                    household_id: house.household_id,
                     name: house.house_name,
                     icon: house.is_owner ? 'home-outline' : 'home',
                     color: getRandomColor(house.house_id),
@@ -67,20 +68,45 @@ export default function HousesScreen() {
     };
 
     const getRandomColor = () => '#8B5CF6';
-
-    const handleSelectHouse = async (house) => {
+    
+    const getAllKeys = async () => {
         try {
-            // Save selected house to AsyncStorage
-            await AsyncStorage.setItem('current_house_id', house.id);
-            await AsyncStorage.setItem('current_house_name', house.name);
-            
-            // Navigate to the house tabs
-            navigation.navigate('IndexTabs', { house });
+          const keys = await AsyncStorage.getAllKeys();
+          console.log('Stored Keys:', keys);
         } catch (error) {
-            console.error('Error saving house selection:', error);
-            Alert.alert('Error', 'Could not select house');
+          console.error('Error retrieving keys:', error);
         }
-    };
+      };
+      
+      // Call this function to see all stored keys
+      getAllKeys();
+
+  
+  // Call this function where needed
+  const handleSelectHouse = async (house) => {
+    try {
+        // Convert house ID to string if it's not already
+        const houseId = house.id;
+        const householdId = house.household_id;
+        
+        // Save selected house to AsyncStorage
+        await AsyncStorage.setItem('householdId', houseId);
+        await AsyncStorage.setItem('house_name', house.name);
+        
+        
+        console.log('Saved house data:', {
+            id: houseId,
+            name: house.name,
+            household_id: householdId
+        });
+        
+        // Navigate to the house tabs
+        navigation.navigate('IndexTabs', { house });
+    } catch (error) {
+        console.error('Error saving house selection:', error);
+        Alert.alert('Error', 'Could not select house');
+    }
+};
 
     const handleJoinHouse = async () => {
         if (!houseCode.trim()) {
@@ -349,14 +375,14 @@ const styles = StyleSheet.create({
         display: 'flex'
     },
     card: {
-        borderRadius: 16,
-        padding: 16,
+        borderRadius: 12, // Reduced from 16
+        padding: 12, // Reduced from 16
         justifyContent: 'center',
         alignItems: 'center',
-        width: '45%',
-        minWidth: 150,
-        aspectRatio: 1,
-        marginBottom: 15,
+        width: '40%', // Reduced from 45%
+        minWidth: 120, // Reduced from 150
+        aspectRatio: 1.2, // Changed from 1 (slightly less square)
+        marginBottom: 12, // Reduced from 15
         position: 'relative',
     },
     cardTitle: {

@@ -28,6 +28,9 @@ export default function MoodProfilesScreen() {
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('#8B5CF6');
+  const [currentMoodId, setCurrentMoodId] = useState(null);
 
   const backgroundColor = isDarkMode ? "black" : "#fff";
   const textColor = isDarkMode ? "#fff" : "#000";
@@ -98,6 +101,7 @@ export default function MoodProfilesScreen() {
           id: mood.id.toString(),
           name: mood.name,
           color: mood.color,
+          room_id: mood.room_id,
           room: mood.room_id ? rooms.find(r => r.id === mood.room_id)?.name : 'All Rooms',
           devices: mood.devices || {}
         }));
@@ -126,8 +130,7 @@ export default function MoodProfilesScreen() {
       }
     } catch (error) {
       console.error("Error fetching devices:", error);
-      // If no devices, provide some defaults
-      setDevices(['Ceiling Light', 'Desk Lamp', 'Fan', 'Heater', 'Smart Plug']);
+      
     }
   };
 
@@ -157,8 +160,17 @@ export default function MoodProfilesScreen() {
     }
   };
 
+  // Handle mood selection and activation
   const handleMoodSelect = (moodId) => {
-    setSelectedMood(moodId === selectedMood ? null : moodId);
+    // If this mood is already selected, deselect it
+    if (selectedMood === moodId) {
+      setSelectedMood(null);
+      return;
+    }
+    
+    // Otherwise, select it and activate it
+    setSelectedMood(moodId);
+    activateMood(moodId);
   };
   
   // Add new mood profile
@@ -176,75 +188,174 @@ export default function MoodProfilesScreen() {
       const moodData = {
         household_id: householdId,
         name: moodName,
-        color: isDarkMode ? '#6B5B95' : '#C0C0C0', // Default color
+        color: selectedColor,
         room_id: roomId,
         devices: deviceConfig
       };
       
-      // Send to backend
-      const response = await axios.post(`${API_URL}/add_mood_profile`, moodData);
+      let response;
       
-      if (response.data && response.data.mood_profile) {
-        const newMood = {
-          id: response.data.mood_profile.mood_id.toString(),
-          name: moodName,
-          color: moodData.color,
-          room: roomForMood !== 'Select room' ? roomForMood : 'All Rooms',
-          devices: deviceConfig
-        };
+      if (isEditMode) {
+        // Update existing mood
+        response = await axios.put(`${API_URL}/update_mood_profile/${currentMoodId}`, moodData);
         
-        setCustomMoods(prev => [...prev, newMood]);
+        if (response.data && response.data["Mood Profile"] === "Update Successful") {
+          // Update the mood in state
+          setCustomMoods(customMoods.map(mood => 
+            mood.id === parseInt(currentMoodId, 10) ? { 
+              ...mood, 
+              name: moodName, 
+              color: selectedColor, 
+              room_id: roomId, 
+              room: roomForMood !== 'Select room' ? roomForMood : 'All Rooms', 
+              devices: deviceConfig 
+            } : mood
+          ));
+        }
+      } else {
+        // Add new mood
+        response = await axios.post(`${API_URL}/add_mood_profile`, moodData);
         
-        // Reset modal
-        setIsModalVisible(false);
-        setMoodName('');
-        setRoomForMood('Select room');
-        setDeviceConfig({});
+        if (response.data && response.data.mood_profile) {
+          const newMood = {
+            id: parseInt(response.data.mood_profile.mood_id, 10), // Ensure it's an integer
+            name: moodName,
+            color: selectedColor,
+            room_id: roomId,
+            room: roomForMood !== 'Select room' ? roomForMood : 'All Rooms',
+            devices: deviceConfig
+          };
+          setCustomMoods(prev => [...prev, newMood]);
+        }
       }
+      
+      // Reset modal
+      resetModalState();
     } catch (error) {
       console.error("Error saving mood:", error);
-      Alert.alert("Error", "Failed to save mood profile. Please try again.");
+      Alert.alert("Error", `Failed to ${isEditMode ? 'update' : 'save'} mood profile. Please try again.`);
     }
   };
 
   // Delete mood profile
-  const deleteMoodProfile = async (moodId) => {
+  // Modify the deleteMoodProfile function to ensure proper ID handling
+const deleteMoodProfile = async (moodId) => {
+  // Make sure moodId is treated as a number
+  const numericMoodId = Number(moodId);
+  
+  console.log(`Attempting to delete mood with ID: ${numericMoodId} (original: ${moodId}, type: ${typeof moodId})`);
+  
+  if (isNaN(numericMoodId)) {
+    console.error("Invalid mood ID for deletion:", moodId);
+    Alert.alert("Error", "Invalid mood ID. Cannot delete this mood.");
+    return;
+  }
+  
+  try {
+    console.log(`Making DELETE request to: ${API_URL}/delete_mood_profile/${numericMoodId}`);
+    
+    // Use the numeric ID explicitly in the URL
+    const response = await axios.delete(`${API_URL}/delete_mood_profile/${numericMoodId}`);
+    
+    console.log("Delete response:", response.data);
+    console.log("Delete response status:", response.status);
+    
+    if (response.status === 200 || (response.data && response.data["Mood Profile Deletion"] === "Successful")) {
+      // If successful, update the local state
+      if (selectedMood === numericMoodId) {  
+        setSelectedMood(null);
+      }
+      
+      setCustomMoods(prevMoods => {
+        const filtered = prevMoods.filter(mood => {
+          // Convert both to same type for comparison
+          return Number(mood.id) !== numericMoodId;
+        });
+        console.log(`Moods before deletion: ${prevMoods.length}, after: ${filtered.length}`);
+        return filtered;
+      });
+      
+      Alert.alert("Success", "Mood profile deleted successfully.");
+    } else {
+      console.error("Unexpected response:", response);
+      Alert.alert("Error", "Failed to delete mood profile. Server returned an unexpected response.");
+    }
+  } catch (error) {
+    console.error("Error deleting mood profile:", error);
+    console.error("Error response:", error.response);
+    console.error("Error response data:", error.response?.data);
+    console.error("Error message:", error.message);
+    
+    Alert.alert("Error", `Failed to delete mood profile: ${error.message || "Unknown error"}`);
+  }
+};
+  
+  // Edit mood profile
+  const editMoodProfile = (mood) => {
+    setIsEditMode(true);
+    setCurrentMoodId(mood.id);
+    setMoodName(mood.name);
+    setSelectedColor(mood.color);
+    
+    // Set room for this mood
+    if (mood.room_id) {
+      const room = rooms.find(r => r.id === mood.room_id);
+      if (room) {
+        setRoomForMood(room.name);
+        setSelectedRoomId(room.id);
+        fetchDevices(room.id);
+      }
+    } else {
+      setRoomForMood('Select room');
+      setSelectedRoomId(null);
+    }
+    
+    // Set device configuration
+    setDeviceConfig(mood.devices || {});
+    
+    // Open modal
+    setIsModalVisible(true);
+  };
+  
+  // Reset modal state
+  const resetModalState = () => {
+    setIsModalVisible(false);
+    setIsEditMode(false);
+    setCurrentMoodId(null);
+    setMoodName('');
+    setRoomForMood('Select room');
+    setSelectedRoomId(null);
+    setDeviceConfig({});
+    setSelectedColor(isDarkMode ? '#6B5B95' : '#8B5CF6');
+  };
+
+  // Activate a mood profile
+  const activateMood = async (moodId) => {
     if (!moodId) return;
     
     try {
-      const response = await axios.delete(`${API_URL}/delete_mood_profile/${moodId}`);
+      const response = await axios.post(`${API_URL}/activate_mood/${parseInt(moodId, 10)}`);
       
-      if (response.data && response.data["Mood Profile Deletion"] === "Successful") {
-        // Remove from local state
-        setCustomMoods(customMoods.filter(mood => mood.id !== moodId));
-        
-        if (selectedMood === moodId) {
-          setSelectedMood(null);
-        }
+      if (response.data && response.data["Mood Activation"] === "Successful") {
+        // We don't need to show an alert here anymore since activation happens automatically on selection
+        console.log("Mood activated successfully");
+      } else {
+        Alert.alert("Error", "Failed to activate mood. Server returned an unexpected response.");
       }
     } catch (error) {
-      console.error("Error deleting mood profile:", error);
-      Alert.alert("Error", "Failed to delete mood profile.");
+      console.error("Error activating mood:", error);
+      Alert.alert("Error", "Failed to activate mood. Please check your connection and try again.");
     }
   };
-
-  // Predefined mood profiles
-  const lightMoods = [
-    { id: 'work', name: 'Work', color: '#AED6F1' },
-    { id: 'party', name: 'Party', color: '#DCC7FF' },
-    { id: 'relaxed', name: 'Relaxed', color: '#B8E4F0' },
-    { id: 'sleep', name: 'Sleep', color: '#A3E4D7' }
+  
+  // Color options for mood profiles
+  const colorOptions = [
+    '#8B5CF6', '#4A90E2', '#7D5CD3', '#4DA6C3', '#3DA98F', 
+    '#F59E0B', '#EF4444', '#10B981', '#6366F1', '#EC4899'
   ];
-  const darkMoods = [
-    { id: 'work', name: 'Work', color: '#4A90E2' },
-    { id: 'party', name: 'Party', color: '#7D5CD3' },
-    { id: 'relaxed', name: 'Relaxed', color: '#4DA6C3' },
-    { id: 'sleep', name: 'Sleep', color: '#3DA98F' }
-  ];
-  const defaultMoods = isDarkMode ? darkMoods : lightMoods;
 
-  // Combine default and custom moods
-  const combinedMoods = [...defaultMoods, ...customMoods];
+
+  
   
   return (
     <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]} contentContainerStyle={styles.contentContainer}>
@@ -305,60 +416,95 @@ export default function MoodProfilesScreen() {
             </View>
           ) : (
             <View style={styles.profilesGrid}>
-              {combinedMoods.map((mood) => (
-                <TouchableOpacity 
-                  key={mood.id}
-                  style={[
-                    styles.profileCard, 
-                    { backgroundColor: mood.color },
-                    selectedMood === mood.id && styles.selectedCard
-                  ]}
-                  onPress={() => handleMoodSelect(mood.id)}
-                  onLongPress={() => {
-                    // Only allow deletion of custom moods, not default ones
-                    if (!defaultMoods.some(m => m.id === mood.id)) {
-                      Alert.alert(
-                        "Delete Mood",
-                        `Are you sure you want to delete "${mood.name}"?`,
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          { text: "Delete", style: "destructive", onPress: () => deleteMoodProfile(mood.id) }
-                        ]
-                      );
-                    }
+              {customMoods.length > 0 ? (
+                customMoods.map((mood) => (
+                  <TouchableOpacity 
+                    key={mood.id}
+                    style={[
+                      styles.profileCard, 
+                      { backgroundColor: mood.color },
+                      selectedMood === mood.id && styles.selectedCard
+                    ]}
+                    onPress={() => handleMoodSelect(mood.id)}
+                    
+                  >
+                    {selectedMood === mood.id && (
+                      <View style={styles.selectedIndicator}>
+                        <Text style={styles.selectedIndicatorText}>✓</Text>
+                      </View>
+                    )}
+                    <View style={styles.profileImage}>
+                      <Image 
+                        source={{ uri: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" }} 
+                        style={styles.profileImg} 
+                      />
+                    </View>
+                    <Text style={styles.profileName}>{mood.name}</Text>
+                    {mood.room && mood.room !== 'All Rooms' && (
+                      <Text style={styles.roomLabel}>{mood.room}</Text>
+                    )}
+                    <View style={styles.moodActionsContainer}>
+                      <TouchableOpacity 
+                        style={styles.moodActionButton}
+                        onPress={() => editMoodProfile(mood)}
+                      >
+                        <Ionicons name="pencil" size={Platform.OS === 'web' ? 24 : 18} color="#fff" />
+                      </TouchableOpacity>
+                                      <TouchableOpacity 
+                  style={[styles.moodActionButton, { backgroundColor: '#EF4444' }]}
+                  onPress={() => {
+                    console.log("Delete button pressed for:", mood.id, typeof mood.id);
+                    Alert.alert(
+                      "Delete Mood",
+                      `Are you sure you want to delete "${mood.name}"?`,
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        { 
+                          text: "Delete", 
+                          style: "destructive", 
+                          onPress: () => {
+                            console.log("Delete confirmed for mood ID:", mood.id);
+                            deleteMoodProfile(mood.id);
+                          }
+                        }
+                      ]
+                    );
                   }}
                 >
-                  {selectedMood === mood.id && (
-                    <View style={styles.selectedIndicator}>
-                      <Text style={styles.selectedIndicatorText}>✓</Text>
-                    </View>
-                  )}
-                  <View style={styles.profileImage}>
-                    <Image 
-                      source={{ uri: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" }} 
-                      style={styles.profileImg} 
-                    />
-                  </View>
-                  <Text style={styles.profileName}>{mood.name}</Text>
-                  {mood.room && mood.room !== 'All Rooms' && (
-                    <Text style={styles.roomLabel}>{mood.room}</Text>
-                  )}
+                  <Ionicons name="trash" size={Platform.OS === 'web' ? 24 : 18} color="#fff" />
                 </TouchableOpacity>
-              ))}
+                                      </View>
+                                    </TouchableOpacity>
+                ))
+              ) : (
+                <View style={styles.noMoodsContainer}>
+                  <Text style={[styles.noMoodsText, {color: textColor}]}>
+                    No mood profiles found. Create your first mood profile!
+                  </Text>
+                </View>
+              )}
             </View>
           )}
           
-          <TouchableOpacity style={styles.addNewButton} onPress={() => setIsModalVisible(true)}>
+          <TouchableOpacity 
+            style={styles.addNewButton} 
+            onPress={() => {
+              resetModalState();
+              setIsModalVisible(true);
+            }}
+          >
             <Text style={styles.addNewButtonText}>Add New Mood</Text>
           </TouchableOpacity>
         </View>
       </View>
       
-      {/* Add Mood Popup */}
-      <Modal visible={isModalVisible} transparent animationType="slide" onRequestClose={() => setIsModalVisible(false)}>
+      {/* Add/Edit Mood Popup */}
+      <Modal visible={isModalVisible} transparent animationType="slide" onRequestClose={() => resetModalState()}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
-            <Text style={styles.modalTitle}>Create New Mood</Text>
+            <Text style={[styles.modalTitle, {color: textColor}]}>
+              {isEditMode ? 'Edit Mood Profile' : 'Create New Mood'}
+            </Text>
             
             <TextInput
               placeholder="Mood Name"
@@ -367,6 +513,22 @@ export default function MoodProfilesScreen() {
               value={moodName}
               onChangeText={setMoodName}
             />
+
+            {/* Color Selection */}
+            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#000' }]}>Select Color:</Text>
+            <View style={styles.colorOptions}>
+              {colorOptions.map((color) => (
+                <TouchableOpacity 
+                  key={color}
+                  style={[
+                    styles.colorOption, 
+                    { backgroundColor: color },
+                    selectedColor === color && styles.selectedColorOption
+                  ]}
+                  onPress={() => setSelectedColor(color)}
+                />
+              ))}
+            </View>
 
             {/* Room Selector */}
             <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#000' }]}>Select Room:</Text>
@@ -412,7 +574,7 @@ export default function MoodProfilesScreen() {
             )}
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setIsModalVisible(false)}>
+              <TouchableOpacity style={styles.cancelButton} onPress={resetModalState}>
                 <Text style={{ color: '#8B5CF6' }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -420,7 +582,7 @@ export default function MoodProfilesScreen() {
                 onPress={handleSaveMood}
                 disabled={!moodName.trim()}
               >
-                <Text style={{ color: '#fff' }}>Save</Text>
+                <Text style={{ color: '#fff' }}>{isEditMode ? 'Update' : 'Save'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -556,14 +718,14 @@ const styles = StyleSheet.create({
     marginBottom: Platform.OS === 'web' ? 50 : 30,
   },
   profileCard: {
-    width: Platform.OS === 'web' ? '22%' : '48%',
-    borderRadius: Platform.OS === 'web' ? 40 : 30,
-    padding: Platform.OS === 'web' ? 40 : 30,
+    width: Platform.OS === 'web' ? '23%' : '48%',
+    borderRadius: Platform.OS === 'web' ? 30 : 20,
+    padding: Platform.OS === 'web' ? 25 : 20,
     alignItems: 'center',
     justifyContent: 'center',
-    aspectRatio: 1,
+    marginBottom: Platform.OS === 'web' ? 25 : 15,
     position: 'relative',
-    minHeight: Platform.OS === 'web' ? 300 : 'auto',
+    minHeight: Platform.OS === 'web' ? 250 : 180,
   },
   selectedCard: {
     shadowColor: '#3B82F6',
@@ -575,50 +737,98 @@ const styles = StyleSheet.create({
   },
   selectedIndicator: {
     position: 'absolute',
-    top: Platform.OS === 'web' ? 25 : 15,
-    right: Platform.OS === 'web' ? 25 : 15,
-    width: Platform.OS === 'web' ? 40 : 24,
-    height: Platform.OS === 'web' ? 40 : 24,
-    borderRadius: Platform.OS === 'web' ? 20 : 12,
+    top: Platform.OS === 'web' ? 20 : 10,
+    right: Platform.OS === 'web' ? 20 : 10,
+    width: Platform.OS === 'web' ? 30 : 20,
+    height: Platform.OS === 'web' ? 30 : 20,
+    borderRadius: Platform.OS === 'web' ? 15 : 10,
     backgroundColor: '#3B82F6',
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectedIndicatorText: {
     color: 'white',
-    fontSize: Platform.OS === 'web' ? 20 : 14,
+    fontSize: Platform.OS === 'web' ? 16 : 12,
   },
   profileImage: {
-    width: Platform.OS === 'web' ? 120 : 80,
-    height: Platform.OS === 'web' ? 120 : 80,
-    borderRadius: Platform.OS === 'web' ? 60 : 40,
+    width: Platform.OS === 'web' ? 100 : 60,
+    height: Platform.OS === 'web' ? 100 : 60,
+    borderRadius: Platform.OS === 'web' ? 50 : 30,
     overflow: 'hidden',
-    marginBottom: Platform.OS === 'web' ? 25 : 15,
+    marginBottom: Platform.OS === 'web' ? 20 : 10,
     backgroundColor: '#ccc',
   },
   profileName: {
-    fontSize: Platform.OS === 'web' ? 32 : 24,
+    fontSize: Platform.OS === 'web' ? 24 : 18,
     fontWeight: '600',
     textAlign: 'center',
+    marginBottom: 5,
+    color: '#fff',
   },
   roomLabel: {
-    fontSize: Platform.OS === 'web' ? 18 : 14,
-    color: 'rgba(0, 0, 0, 0.6)',
-    marginTop: 5,
+    fontSize: Platform.OS === 'web' ? 16 : 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: Platform.OS === 'web' ? 40 : 30,
+  },
+  moodActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: Platform.OS === 'web' ? 20 : 15,
+    width: '100%',
+  },
+  moodActionButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    width: Platform.OS === 'web' ? 40 : 30,
+    height: Platform.OS === 'web' ? 40 : 30,
+    borderRadius: Platform.OS === 'web' ? 20 : 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
   },
   addNewButton: {
     backgroundColor: '#8B5CF6',
-    padding: Platform.OS === 'web' ? 25 : 15,
-    borderRadius: Platform.OS === 'web' ? 60 : 30,
+    borderRadius: Platform.OS === 'web' ? 60 : 40,
+    padding: Platform.OS === 'web' ? 30 : 20,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
     marginBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   addNewButtonText: {
     color: 'white',
     fontSize: Platform.OS === 'web' ? 24 : 18,
     fontWeight: '600',
+  },
+  noMoodsContainer: {
+    width: '100%',
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noMoodsText: {
+    fontSize: Platform.OS === 'web' ? 18 : 16,
+    textAlign: 'center',
+    opacity: 0.7,
+  },
+  errorContainer: {
+    backgroundColor: '#FEE2E2',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  errorText: {
+    color: '#DC2626',
+    fontSize: 16,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -628,26 +838,21 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    width: Platform.OS === 'web' ? '50%' : '90%',
-    maxWidth: 600,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    padding: 25,
+    width: Platform.OS === 'web' ? '50%' : '90%',
+    maxWidth: 600,
+    maxHeight: '90%',
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
-    borderWidth: 0,
-    backgroundColor: '#eee',
+    backgroundColor: '#F3F4F6',
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
@@ -659,14 +864,34 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
   },
+  colorOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 20,
+  },
+  colorOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    margin: 5,
+  },
+  selectedColorOption: {
+    borderWidth: 3,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
   dropdownButton: {
-    backgroundColor: '#eee',
+    backgroundColor: '#F3F4F6',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
   },
   dropdownMenuSmall: {
-    backgroundColor: '#eee',
+    backgroundColor: '#F3F4F6',
     borderRadius: 10,
     marginBottom: 20,
     maxHeight: 150,
@@ -688,34 +913,22 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: '#8B5CF6',
+    backgroundColor: '#F3F4F6',
   },
   addButton: {
     backgroundColor: '#8B5CF6',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
     marginLeft: 10,
   },
   disabledButton: {
-    opacity: 0.5,
-  },
-  errorContainer: {
-    backgroundColor: '#FEE2E2',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  errorText: {
-    color: '#B91C1C',
-    fontSize: 16,
-  },
-  loadingContainer: {
-    padding: 20,
-    alignItems: 'center',
+    backgroundColor: '#A78BFA',
+    opacity: 0.7,
   }
 });

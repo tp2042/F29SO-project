@@ -1,6 +1,6 @@
-import { useRoute } from '@react-navigation/native';
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Switch, ScrollView, StyleSheet, Modal, TextInput, ActivityIndicator, FlatList, Platform } from "react-native";
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useState, useEffect, useCallback } from "react";
+import { View, Text, TouchableOpacity, Switch, ScrollView,  StyleSheet, Modal, TextInput, ActivityIndicator, FlatList, Platform } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
@@ -58,7 +58,8 @@ export default function RoomsDetails() {
     const API_URL = "http://localhost:5003";
     const [devices, setDevices] = useState([]);
     const [allDevicesOn, setAllDevicesOn] = useState(false); // Added missing state definition
-
+    
+    
     // Fetch household ID and load devices
     useEffect(() => {
         const getHouseholdId = async () => {
@@ -191,29 +192,24 @@ export default function RoomsDetails() {
           } else {
             console.error("Invalid response format:", response.data);
             setErrorMessage("Invalid response from server. Using demo devices.");
-            setDemoDevices();
+            
           }
         } catch (error) {
           console.error("Error fetching devices:", error);
           console.error("Error details:", error.response || error.message);
-          setDemoDevices();
-          setErrorMessage("Could not fetch from server. Using demo devices.");
+         
+          setErrorMessage("Could not find any devices. Add one!");
         } finally {
           setIsLoading(false);
         }
       };
       
       // Helper function to set demo devices
-      const setDemoDevices = () => {
-        setDevices([
-          { id: 1, name: "Ceiling Light", isOn: true, type: "light", category: "light" },
-          { id: 2, name: "Heater", isOn: false, type: "climate", category: "climate" },
-          { id: 3, name: "Air Conditioner", isOn: true, type: "climate", category: "climate" }
-        ]);
-      };
+      
     
       // Fetch energy data for a single device
-      const fetchDeviceEnergyData = async (deviceId) => {
+    const fetchDeviceEnergyData = async (deviceId) => {
+          console.log('dev', deviceId)
         try {
           const response = await axios.get(`${API_URL}/device_energy/${deviceId}`, {
             timeout: 50000 // Add timeout to prevent hanging requests
@@ -277,6 +273,7 @@ export default function RoomsDetails() {
         const categories = ['light', 'climate', 'entertainment', 'power', 'security'];
         return categories[id % categories.length];
       };
+      
     
       // Calculate total energy usage from all active devices
       const calculateEnergyUsage = () => {

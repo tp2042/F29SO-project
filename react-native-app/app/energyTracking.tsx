@@ -84,6 +84,7 @@ export default function EnergyTrackingScreen() {
   };
 
   const downloadReport = async () => {
+    const household_id = await AsyncStorage.getItem('householdId');
     if (!household_id) {
       Alert.alert('Error', 'Household ID is required');
       return;
@@ -94,7 +95,7 @@ export default function EnergyTrackingScreen() {
       
       if (isWeb) {
         // For web, open the PDF in a new tab
-        window.open(`${API_BASE_URL}/energy_report?household_id=${household_id}`, '_blank');
+        window.open(`${API_BASE_URL}/daily_energy_summary?household_id=${household_id}`, '_blank');
         setDownloadingReport(false);
       } else {
         // For mobile, download and share the PDF

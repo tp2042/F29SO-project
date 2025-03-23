@@ -35,7 +35,7 @@ export default function SettingsScreen() {
 
     const settingsOptions = [
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
-        { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySecurity" },
+        { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySettings" },
         { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "Support" },
         { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
