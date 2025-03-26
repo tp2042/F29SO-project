@@ -31,6 +31,7 @@ export default function PropertyManagerScreen() {
   // For creating a new house
   const [newHouse, setNewHouse] = useState({
     houseName: '',
+    houseMeter: '',
   });
   
   const [error, setError] = useState('');
@@ -376,10 +377,22 @@ export default function PropertyManagerScreen() {
                 style={[styles.input, error && styles.inputError]}
                 value={newHouse.houseName}
                 onChangeText={(text) => {
-                  setNewHouse(prev => ({ ...prev, houseName: text }));
+                  setNewHouse(prev => ({ ...prev, houseName: text, houseMeter: '' }));
                   setError('');
                 }}
                 placeholder="Enter house name"
+              />
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+              <Text style={styles.label}>House Electricity Meter code</Text>
+              <TextInput
+                style={[styles.input, error && styles.inputError]}
+                value={newHouse.houseMeter}
+                onChangeText={(text) => {
+                  setNewHouse(prev => ({ ...prev, houseMeter: text }));
+                  setError('');
+                }}
+                placeholder="Enter house meter code"
               />
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
             </View>
@@ -742,6 +755,7 @@ const styles = StyleSheet.create({
     padding: Platform.OS === 'web' ? 12 : 10,
     fontSize: 16,
     color: '#1F2937',
+    marginBottom: 15
   },
   inputError: {
     borderWidth: 1,
