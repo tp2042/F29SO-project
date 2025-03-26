@@ -154,8 +154,8 @@ export default function IndexScreen() {
       <Stack.Navigator initialRouteName="Cover" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Cover" component={CoverScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="HousesScreen" component={HousesScreen}/>
+          <Stack.Screen name="HousesScreen" component={HousesScreen} />
+          <Stack.Screen name="registration" component={RegistrationScreen} options={{ headerShown: false }} />
         <Stack.Screen name="IndexTabs" component={TabNavigator} options={{ headerShown: false }}/>
           <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
           <Stack.Screen name="PropertyManagerScreen" component={PropertyManagerScreen} />

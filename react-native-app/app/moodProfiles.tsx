@@ -36,7 +36,7 @@ export default function MoodProfilesScreen() {
   const textColor = isDarkMode ? "#fff" : "#000";
   
   // Backend API URL - replace with your actual URL
-  const API_URL = "http://localhost:5003"; 
+  const API_URL = "https://backend-1-y12u.onrender.com"; 
 
   // Load user data, household ID and fetch rooms on component mount
   useEffect(() => {

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Modal, Activ
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+//import DateTimePicker from '@react-native-community/datetimepicker'; 
 
 const HouseholdLeaderboardScreen = ({ visible, onClose, householdId, currentUserWattPoints }) => {
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -14,12 +15,14 @@ const HouseholdLeaderboardScreen = ({ visible, onClose, householdId, currentUser
   const [challengeType, setChallengeType] = useState('Consumption');
   const [targetValue, setTargetValue] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [creatingChallenge, setCreatingChallenge] = useState(false);
   // New state variables for challenges
   const [activeChallenges, setActiveChallenges] = useState([]);
   const [loadingChallenges, setLoadingChallenges] = useState(true);
   
-  const API_URL = "http://localhost:5003"; 
+  const API_URL = "https://backend-1-y12u.onrender.com"; 
   
   useEffect(() => {
     if (visible && householdId) {
@@ -27,7 +30,19 @@ const HouseholdLeaderboardScreen = ({ visible, onClose, householdId, currentUser
       fetchHouseholdChallenges(); // New function to fetch challenges
     }
   }, [visible, householdId, timeframe]);
+   
 
+  const onDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || new Date();
+    setShowDatePicker(false);
+    setSelectedDate(currentDate);
+    
+    // Format the date as YYYY-MM-DD for backend
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    setDeadline(formattedDate);
+  };
+
+  
   const fetchHouseholdUsers = async () => {
     const householdId = await AsyncStorage.getItem('householdId');
     setLoading(true);
@@ -334,14 +349,25 @@ const HouseholdLeaderboardScreen = ({ visible, onClose, householdId, currentUser
             keyboardType="numeric"
           />
           
-          <Text style={styles.inputLabel}>Deadline (YYYY-MM-DD)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter deadline date"
-            value={deadline}
-            onChangeText={setDeadline}
-          />
-          
+          <Text style={styles.inputLabel}>Deadline</Text>
+          <TouchableOpacity 
+            style={styles.datePickerButton} 
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Ionicons name="calendar" size={20} color="#8B5CF6" />
+            <Text style={styles.datePickerButtonText}>
+              {selectedDate.toLocaleDateString()}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+              minimumDate={new Date()} // Prevent selecting past dates
+            />
+          )}
           <TouchableOpacity 
             style={styles.submitChallengeButton}
             onPress={startChallenge}
@@ -767,6 +793,21 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 15,
+  },
+  datePickerButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
   },
   firstRank: {
     backgroundColor: '#FFD700', // Gold

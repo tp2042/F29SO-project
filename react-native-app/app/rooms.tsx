@@ -29,7 +29,7 @@ export default function RoomsScreen() {
     const backgroundColor = isDarkMode ? "black" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
 
-    const API_URL = "http://localhost:5003"; 
+    const API_URL = "https://backend-1-y12u.onrender.com"; 
 
     // Fetch household ID 
     useEffect(() => {

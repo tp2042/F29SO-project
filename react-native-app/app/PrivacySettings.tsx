@@ -18,7 +18,7 @@ export default function PrivacySettings() {
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState(null);
   
-  const API_URL = 'http://localhost:5003'; // Replace with your actual API URL
+  const API_URL = 'https://backend-1-y12u.onrender.com'; // Replace with your actual API URL
   
   // Fetch current settings on component mount
   useEffect(() => {

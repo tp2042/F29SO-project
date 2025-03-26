@@ -6,7 +6,7 @@ import { useTheme } from "./ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Backend URL - Update this to your actual server address
-const BACKEND_URL = "http://localhost:5003"; // Change to your Flask server URL
+const BACKEND_URL = "https://backend-1-y12u.onrender.com"; // Change to your Flask server URL
 
 export default function ProfileSettings() {
     const [isEditing, setIsEditing] = useState(false);
@@ -185,11 +185,13 @@ export default function ProfileSettings() {
             ) : (
                 <>
                     {/* Profile Image */}
-                    <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+                    <View style={styles.profileIcon}>
+                                            <Text style={styles.profileText}>
+                                                {name ? name.charAt(0).toUpperCase() : "U"}
+                                            </Text>
+                                        </View>
                     <TouchableOpacity disabled={!isEditing}>
-                        <Text style={[styles.changePicText, { color: isEditing ? "#3B82F6" : "#888" }]}>
-                            Change Profile Picture
-                        </Text>
+                        
                     </TouchableOpacity>
 
                     {/* User Name */}
@@ -332,4 +334,18 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#fff"
     },
+    profileIcon: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: "#6200ea", // Change color as needed
+        justifyContent: "center",
+        marginBottom: '0.8%',
+        alignItems: "center",
+    },
+    profileText: {
+        color: "#fff",
+        fontSize: 24,
+        fontWeight: "bold",
+    }
 });

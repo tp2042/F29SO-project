@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTheme } from "./ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { BarChart } from "react-native-chart-kit";
 import { useWindowDimensions } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const API_BASE_URL = 'http://localhost:5003'; // Replace with your actual API base URL
+const API_BASE_URL = 'https://backend-1-y12u.onrender.com'; // Replace with your actual API base URL
 
 export default function EnergyTrackingScreen() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const backgroundColor = isDarkMode ? "black" : "#fff";
+  const textColor = isDarkMode ? "#fff" : "#000";
   const navigation = useNavigation();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const { propertyName, household_id } = useLocalSearchParams();
@@ -27,6 +31,10 @@ export default function EnergyTrackingScreen() {
     ? Math.min(Math.max(windowWidth * 0.6, 500), 800)
     : windowWidth - 32;
 
+    useEffect(() => {
+      navigation.setOptions({ headerShown: false });
+    }, [navigation]);
+  
   // Fetch energy data from the API
   useEffect(() => {
     if (!household_id) {
@@ -234,10 +242,12 @@ export default function EnergyTrackingScreen() {
     );
   }
 
+
+
   return (
     <View style={styles.safeContainer}>
       <ScrollView 
-        style={styles.container} 
+        style={[styles.container, { backgroundColor: isDarkMode ? "#333" : "#f5f5f5" }]} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
         nestedScrollEnabled={true}
@@ -245,11 +255,8 @@ export default function EnergyTrackingScreen() {
         <View style={styles.contentWrapper}>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                <Ionicons name="chevron-back" size={24} color="#000" />
-              </TouchableOpacity>
               <View>
-                <Text style={styles.title}>{energyData?.household_name || propertyName || 'Energy Tracking'}</Text>
+                <Text style={[styles.title, {color: textColor}]}>{energyData?.household_name || propertyName || 'Energy Tracking'}</Text>
                 <Text style={styles.subtitle}>{getPeriodLabel()}</Text>
               </View>
             </View>
@@ -269,30 +276,30 @@ export default function EnergyTrackingScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.periodSelector}>
+          <View style={[styles.periodSelector, {backgroundColor: backgroundColor}]}>
             <TouchableOpacity 
               style={[styles.periodButton, selectedPeriod === 'day' && styles.periodButtonActive]}
               onPress={() => setSelectedPeriod('day')}
             >
-              <Text style={[styles.periodButtonText, selectedPeriod === 'day' && styles.periodButtonTextActive]}>Day</Text>
+              <Text style={[styles.periodButtonText, selectedPeriod === 'day' && styles.periodButtonTextActive, {color: textColor}]}>Day</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.periodButton, selectedPeriod === 'week' && styles.periodButtonActive]}
               onPress={() => setSelectedPeriod('week')}
             >
-              <Text style={[styles.periodButtonText, selectedPeriod === 'week' && styles.periodButtonTextActive]}>Week</Text>
+              <Text style={[styles.periodButtonText, selectedPeriod === 'week' && styles.periodButtonTextActive, {color: textColor}]}>Week</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.periodButton, selectedPeriod === 'month' && styles.periodButtonActive]}
               onPress={() => setSelectedPeriod('month')}
             >
-              <Text style={[styles.periodButtonText, selectedPeriod === 'month' && styles.periodButtonTextActive]}>Month</Text>
+              <Text style={[styles.periodButtonText, selectedPeriod === 'month' && styles.periodButtonTextActive, {color: textColor}]}>Month</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.periodButton, selectedPeriod === 'quarter' && styles.periodButtonActive]}
               onPress={() => setSelectedPeriod('quarter')}
             >
-              <Text style={[styles.periodButtonText, selectedPeriod === 'quarter' && styles.periodButtonTextActive]}>3 Months</Text>
+              <Text style={[styles.periodButtonText, selectedPeriod === 'quarter' && styles.periodButtonTextActive, {color: textColor}]}>3 Months</Text>
             </TouchableOpacity>
           </View>
 
@@ -309,50 +316,69 @@ export default function EnergyTrackingScreen() {
                 <ScrollView 
                   horizontal 
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.chartScrollContainer}
+                  contentContainerStyle={[styles.chartScrollContainer, {alignItems: 'center', flexGrow: 1}]}
                   nestedScrollEnabled={true}
-                >
-                  <BarChart
-                    data={getChartData()}
-                    width={isWeb ? chartWidth : Math.max(chartWidth, 400)}
-                    height={200}
-                    yAxisLabel=""
-                    yAxisSuffix=" kWh"
-                    fromZero
-                    showValuesOnTopOfBars
-                    segments={5}
-                    chartConfig={{
-                      backgroundColor: "#8B5CF6",
-                      backgroundGradientFrom: "#8B5CF6",
-                      backgroundGradientTo: "#8B5CF6",
-                      decimalPlaces: 0,
-                      color: (opacity = 1, index) => {
-                        if (index === undefined) return 'rgb(255, 255, 255)';
-                        const maxUsage = getMaxUsage();
-                        return energyData?.data?.[index]?.usage === maxUsage 
-                          ? 'rgb(255, 215, 0)'
-                          : 'rgb(255, 255, 255)';
-                      },
-                      style: {
-                        borderRadius: 16,
-                      },
-                      barPercentage: 0.7,
-                      barRadius: 6,
-                      propsForBackgroundLines: {
-                        strokeWidth: 1,
-                        stroke: "rgba(255,255,255,0.2)",
-                      },
-                      count: 5,
-                      formatYLabel: (value) => Math.round(Number(value)).toString(),
-                      propsForLabels: {
-                        fontSize: isWeb ? 14 : 12,
-                      },
-                    }}
-                    style={{
-                      marginVertical: 8,
-                      borderRadius: 16,
-                    }}
-                  />
+                  >
+                    <View style={[{flex: 1}, {alignItems: 'center'}]}>
+                      <BarChart
+                        data={getChartData()}
+                        width={isWeb ? chartWidth : windowWidth - 64} // Adjust width to nearly full container
+                        height={280} // Slightly increased height
+                        yAxisLabel=""
+                        yAxisSuffix=" kWh"
+                        fromZero
+                        showValuesOnTopOfBars
+                        segments={5}
+                        chartConfig={{
+                          backgroundColor: "#8B5CF6",
+                          backgroundGradientFrom: "#8B5CF6",
+                          backgroundGradientTo: "#8B5CF6",
+                          decimalPlaces: 1,
+                          color: (opacity = 1, index) => {
+                            // More dynamic color logic
+                            if (index === undefined) return 'rgba(255,255,255,0.7)';
+                            
+                            const maxUsage = getMaxUsage();
+                            const currentUsage = energyData?.data?.[index]?.usage || 0;
+                            
+                            // Create a gradient based on usage relative to max
+                            const normalizedUsage = currentUsage / maxUsage;
+                            
+                            if (currentUsage === maxUsage) {
+                              return 'rgba(255, 215, 0, 1)';  // Bright gold for peak
+                            } else if (normalizedUsage > 0.7) {
+                              return `rgba(255, 165, 0, ${0.7 + normalizedUsage * 0.3})`;  // Orange gradient
+                            } else if (normalizedUsage > 0.4) {
+                              return `rgba(255, 255, 255, ${0.6 + normalizedUsage * 0.4})`;  // White to light gradient
+                            } else {
+                              return `rgba(255, 255, 255, ${0.4 + normalizedUsage * 0.6})`;  // Lighter whites
+                            }
+                          },
+                          barPercentage: 0.8, // Increase bar width slightly
+                          barRadius: 8,  // More rounded corners
+                          propsForBackgroundLines: {
+                            strokeWidth: 1,
+                            stroke: "rgba(255,255,255,0.2)",
+                          },
+                          formatYLabel: (value) => `${Math.round(Number(value))}`,
+                          propsForLabels: {
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            color: 'rgba(255,255,255,0.8)'
+                          },
+                          labelOffset: { x: 0, y: 5 }, // Adjust label positioning
+                        }}
+                        style={{
+                          marginVertical: 8,
+                          borderRadius: 16,
+                          elevation: 3,
+                          shadowColor: '#00',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.1,
+                          shadowRadius: 4,
+                        }}
+                      />
+                      </View>
                 </ScrollView>
               )}
             </View>
@@ -363,27 +389,28 @@ export default function EnergyTrackingScreen() {
                   key={index} 
                   style={[
                     styles.statCard,
+                    {backgroundColor: isDarkMode ? "#000" : "#fff"},
                     !isWeb && { width: mobileCardWidth }
                   ]}
                 >
                   <View style={styles.statIcon}>
                     <Ionicons name={stat.icon} size={20} color="#8B5CF6" />
                   </View>
-                  <Text style={styles.statTitle}>{stat.title}</Text>
-                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={[styles.statTitle, {color: textColor}]}>{stat.title}</Text>
+                  <Text style={[styles.statValue, {color: isDarkMode ? "#A9A9A9" : "#111827"}]}>{stat.value}</Text>
                 </View>
               ))}
             </View>
 
-            <View style={styles.recommendationsSection}>
-              <Text style={styles.recommendationsTitle}>Recommendations</Text>
+            <View style={[styles.recommendationsSection, {backgroundColor: backgroundColor}]}>
+              <Text style={[styles.recommendationsTitle, {color: textColor}]}>Recommendations</Text>
               <View style={styles.recommendationsList}>
                 <View style={styles.recommendationItem}>
                   <View style={styles.recommendationIcon}>
                     <Ionicons name="bulb" size={20} color="#8B5CF6" />
                   </View>
                   <View style={styles.recommendationText}>
-                    <Text style={styles.recommendationTitle}>High Usage Alert</Text>
+                    <Text style={[styles.recommendationTitle, {color: textColor}]}>High Usage Alert</Text>
                     <Text style={styles.recommendationDescription}>
                       {getPeakDayLabel()}'s usage was significantly higher. Consider reviewing activities during peak hours.
                     </Text>
@@ -394,7 +421,7 @@ export default function EnergyTrackingScreen() {
                     <Ionicons name="time" size={20} color="#8B5CF6" />
                   </View>
                   <View style={styles.recommendationText}>
-                    <Text style={styles.recommendationTitle}>Optimal Usage Time</Text>
+                    <Text style={[styles.recommendationTitle, {color: textColor}]}>Optimal Usage Time</Text>
                     <Text style={styles.recommendationDescription}>
                       Schedule high-energy activities between 10 PM and 6 AM for better rates.
                     </Text>
@@ -405,7 +432,7 @@ export default function EnergyTrackingScreen() {
                     <Ionicons name="hardware-chip" size={20} color="#8B5CF6" />
                   </View>
                   <View style={styles.recommendationText}>
-                    <Text style={styles.recommendationTitle}>Smart Device Integration</Text>
+                    <Text style={[styles.recommendationTitle, {color: textColor}]}>Smart Device Integration</Text>
                     <Text style={styles.recommendationDescription}>
                       Consider investing in smart plugs to monitor and control energy usage of individual appliances.
                     </Text>

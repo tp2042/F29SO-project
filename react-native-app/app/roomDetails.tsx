@@ -6,6 +6,8 @@ import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "./ThemeContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Constants from "expo-constants";
+
 // Database of compatible devices
 const compatibleDevices = [
  { id: 'smart-bulb-1', name: 'Smart Bulb - Philips Hue', type: 'light', manufacturer: 'Philips' },
@@ -55,9 +57,10 @@ export default function RoomsDetails() {
     const { isDarkMode } = useTheme();
     const backgroundColor = isDarkMode ? "#000" : "#fff";
     const textColor = isDarkMode ? "#fff" : "#000";
-    const API_URL = "http://localhost:5003";
+    const API_URL = "https://backend-1-y12u.onrender.com";
     const [devices, setDevices] = useState([]);
     const [allDevicesOn, setAllDevicesOn] = useState(false); // Added missing state definition
+    
     
     
     // Fetch household ID and load devices
@@ -1057,7 +1060,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     addDeviceCard: {
-        width: '48%',
+        width: Platform.OS==="web" ? '49.5%' : '48%',
         padding: 15,
         borderRadius: 10,
         marginBottom: 15,

@@ -55,7 +55,7 @@ export default function DeviceDetailScreen() {
     const [diagnosticsModalVisible, setDiagnosticsModalVisible] = useState(false);
 
     // API base URL - move to environment variable in production
-    const API_BASE_URL = 'http://localhost:5003';
+    const API_BASE_URL = 'https://backend-1-y12u.onrender.com';
 
     // Keeping all the functions from your original code
     useEffect(() => {

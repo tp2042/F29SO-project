@@ -42,6 +42,9 @@ export default function LoginScreen() {
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
+
+  
+   
 //----------------------------------------------int------------------------------
     setErrors(newErrors);
 
@@ -51,7 +54,7 @@ export default function LoginScreen() {
       
       try {
         
-        const response = await axios.post('http://localhost:5003/login', {
+        const response = await axios.post('https://backend-1-y12u.onrender.com/login', {
           email: email,
           password: password
         });
@@ -167,8 +170,7 @@ export default function LoginScreen() {
         
         <TouchableOpacity 
           style={styles.signUpButton}
-          onPress={() => navigation.navigate('Registration')}
-          disabled={loading}
+          onPress={() => navigation.navigate("registration")}
         >
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>

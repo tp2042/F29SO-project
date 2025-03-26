@@ -87,7 +87,7 @@ export default function SupportScreen() {
                 <View style={styles.contactUs}>
                     <Text style={[styles.settingTitle, {color: '#fff'}, {fontSize: 30}]}>Contact Us</Text>
                     <Text style={[{color: '#fff'}, {fontSize: 20}]}>
-                        Adress: 
+                        Address: 
                         Email: mywattapp@gmail.com
                     </Text>
                     <View style={styles.links}>
@@ -122,13 +122,13 @@ export default function SupportScreen() {
         houseId: { color: "gray", marginTop: 10 },
         modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
         modalContent: { width: '54%', borderRadius: 15, padding: 20 },
-        modalTitle: { fontSize: 22, fontWeight: '600', marginBottom: 15, alignSelf: 'center'},
+        modalTitle: { fontSize: 22, fontWeight: '600', marginBottom: 50, alignSelf: 'center'},
         modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
         cancelButton: { padding: 10 },
         addButton: { backgroundColor: '#8B5CF6', padding: 10, borderRadius: 8 },
         contactUs: {
             alignItems: "center",
-            padding: 20,
+            padding: 30,
             width: Platform.OS==="web" ? '30%' : '90%',
             backgroundColor: '#8B5CF6',
             flex: 1,

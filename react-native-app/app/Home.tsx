@@ -54,7 +54,7 @@ export default function HomeScreen() {
     const [devices, setDevices] = useState([]);
     const [isLoadingDevices, setIsLoadingDevices] = useState(false);
     const [users, setUsers] = useState([]);
-    const API_URL = "http://localhost:5003"; 
+    const API_URL = "https://backend-1-y12u.onrender.com"; 
     const [isLoading, setIsLoading] = useState(true);
     // Energy insights state
     const [showEnergyInsights, setShowEnergyInsights] = useState(false);
@@ -73,6 +73,7 @@ export default function HomeScreen() {
                 const storedUserId = await AsyncStorage.getItem('userId');
                 const storedHouseholdId = await AsyncStorage.getItem('householdId');
                 console.log("Leaderboard API Response:", storedUserId);
+                console.log("house", storedHouseholdId)
 
                 if (!storedUserId || !storedHouseholdId) {
                     console.error("Missing userId or householdId in AsyncStorage");
@@ -240,7 +241,13 @@ export default function HomeScreen() {
         : require("../assets/images/gamification_mobile.jpg");  
 
     {/* Weather API */}
-    const [weather, setWeather] = useState<{ temp: number; description: string } | null>(null);
+    const [weather, setWeather] = useState<{ 
+        temp: number; 
+        description: string; 
+        icon: string; 
+        cityName: string 
+    } | null>(null);
+
     useEffect(() => {
         const apiKey = 'd0a8acdd23e7995e921ab1c49957c17d';
         const city = 'Dubai';
@@ -249,13 +256,23 @@ export default function HomeScreen() {
         .then((res) => res.json())
         .then((data) => {
             if (data.cod === 200) {
-            const tempCelsius = parseFloat((data.main.temp - 273.15).toFixed(2));
-            const description = data.weather[0].description;
-            setWeather({ temp: tempCelsius, description });
+                const tempCelsius = parseFloat((data.main.temp - 273.15).toFixed(2));
+                const description = data.weather[0].description;
+                const icon = data.weather[0].icon;
+                const cityName = data.name;
+                
+                setWeather({ 
+                    temp: tempCelsius, 
+                    description, 
+                    icon, 
+                    cityName 
+                });
             }
         })
         .catch((err) => console.error('Error fetching weather:', err));
     }, []);
+
+
     
     return (
         <ScrollView style={[styles.container, {backgroundColor: isDarkMode ? "#333" : "#f5f5f5"}]}>
@@ -263,13 +280,6 @@ export default function HomeScreen() {
             <View style={styles.header}>
                 <View>
                     <Text style={[styles.greeting, { color: isDarkMode ? "#fff" : "#000" }]}>Hey, <Text style={styles.boldText}>{userName} 👋</Text></Text>
-                    {weather ? (
-                        <Text style={[styles.weatherText, { color: textColor }]}>
-                            Weather outside is <Text style={{ fontWeight: 'bold', color: '#8B5CF6' }}>{weather.temp}°C</Text>, {weather.description}
-                        </Text>
-                    ) : (
-                        <Text style={[styles.weatherText, { color: textColor }]}>Loading weather...</Text>
-                    )}
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate("ProfileSettings")}>
                     <View style={styles.profileIcon}>
@@ -280,6 +290,35 @@ export default function HomeScreen() {
                 </TouchableOpacity>
             </View>
 
+            {/* Weather Card */}
+            {weather && (
+                <View
+                    style={styles.weatherCard} 
+                >
+                    <ImageBackground 
+                        source={require("../assets/images/weather_background.jpg")} 
+                        resizeMode="cover" 
+                        style={styles.weatherCardBackground} 
+                        imageStyle={{ borderRadius: 15 }}
+                    >
+                        <View style={styles.weatherCardContent}>
+                            <View style={styles.weatherIconTemp}>
+                                <Image 
+                                    source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}@2x.png` }}
+                                    style={styles.weatherIcon}
+                                />
+                                <Text style={styles.weatherTemp}>{weather.temp.toFixed(1)}°C</Text>
+                            </View>
+                            
+                            <View style={styles.weatherDetails}>
+                                <Text style={styles.weatherCity}>{weather.cityName}</Text>
+                                <Text style={styles.weatherDescription}>{weather.description}</Text>
+                            </View>
+                        </View>
+                    </ImageBackground>
+                </View>
+            )}
+            {/* Master temperature 
             <View style={[styles.tempControl, {backgroundColor: backgroundColor}]}>
                 <Text style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}>Master Temperature Control</Text>
                 <Text style={{ color: isDarkMode ? "#fff" : "#000" }}>{temperature}°C</Text>
@@ -294,88 +333,10 @@ export default function HomeScreen() {
                     maximumTrackTintColor="#e8e8e8"
                     thumbTintColor="#8B5CF6"/>
             </View>
+            */}
 
-            {/* Gamification Leaderboard */}
-            <TouchableOpacity 
-                onPress={() => setShowLeaderboard(true)}
-                activeOpacity={0.8}
-            >
-                <ImageBackground 
-                    source={backgroundImage} 
-                    resizeMode="cover" 
-                    style={styles.energyCard} 
-                    imageStyle={{ width: "100%", height: "100%", borderRadius: 15, alignSelf: "center" }}
-                >
-                    <View style={styles.energyCardContent}>
-                        <View style={styles.pointsDisplay}>
-                            <Text style={styles.wattPoints}>{isLoading ? "..." : WattPoints}</Text>
-                            <Text style={styles.wattPointsText}>watt points</Text>
-                        </View>
-                        
-                        <View style={styles.familyRankingPreview}>
-                            <Text style={styles.familyRankingTitle}>Leaderboard</Text>
-
-                            <View style={styles.familyAvatars}>
-                                {leaderboard.slice(0, 5).map((user, index) => (
-                                    <Image 
-                                        key={user.id}
-                                        source={{ uri: user.avatar }} 
-                                        style={[
-                                            styles.familyAvatar, 
-                                            { marginLeft: index === 0 ? 0 : -15, zIndex: 5 - index }, 
-                                            user.isCurrentUser ? { borderWidth: 2, borderColor: "#0d3b66" } : {}
-                                        ]} 
-                                    />
-                                ))}
-                            </View>
-                        </View>
-                    </View>
-                </ImageBackground>
-            </TouchableOpacity>
-
-            {/* Household Leaderboard Modal */}
-            <HouseholdLeaderboardScreen 
-                visible={showLeaderboard}
-                onClose={() => setShowLeaderboard(false)}
-                householdId={householdId}
-                currentUserWattPoints={WattPoints}
-                API_URL={API_URL}
-            />
-
-            {/* Rooms */}
-            <View style={styles.roomGrid}>
-                {isLoadingRooms ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#8B5CF6" />
-                        <Text style={styles.loadingText}>Loading rooms...</Text>
-                    </View>
-                ) : (
-                    rooms.length > 0 ? (
-                        rooms.map((room, index) => (
-                            <TouchableOpacity 
-                                key={index} 
-                                style={[styles.roomCard, { backgroundColor: room.bgColor }]} 
-                                onPress={() => handleRoomPress(room)}
-                            >
-                                <Text style={styles.roomText}>{room.name}</Text>
-                                {roomEnergyData[room.id] && (
-                                    <View style={styles.roomEnergyIndicator}>
-                                        <Ionicons name="flash-outline" size={20} color="#333" />
-                                        <Text style={styles.roomEnergyText}>
-                                            {roomEnergyData[room.id].energy_consumed?.toFixed(1)} kWh
-                                        </Text>
-                                    </View>
-                                )}
-                            </TouchableOpacity>
-                        ))
-                    ) : (
-                        <Text style={[styles.noContentText, {color: textColor}]}>No rooms found. Please set up your home.</Text>
-                    )
-                )}
-            </View>
-
-            {/* Energy Insights Button */}
-            <TouchableOpacity 
+                        {/* Energy Insights Button */}
+                        <TouchableOpacity 
                 style={[styles.insightsButton, {backgroundColor: isDarkMode ? "#8B5CF6" : "#6A5AE0"}]} 
                 onPress={fetchEnergyInsights}
                 disabled={!householdId}>
@@ -467,6 +428,86 @@ export default function HomeScreen() {
                     </View>
                 </View>
             )}
+            {/* Gamification Leaderboard */}
+            <TouchableOpacity 
+                onPress={() => setShowLeaderboard(true)}
+                activeOpacity={0.8}
+            >
+                <ImageBackground 
+                    source={backgroundImage} 
+                    resizeMode="cover" 
+                    style={styles.energyCard} 
+                    imageStyle={{ width: "100%", height: "100%", borderRadius: 15, alignSelf: "center" }}
+                >
+                    <View style={styles.energyCardContent}>
+                        <View style={styles.pointsDisplay}>
+                            <Text style={styles.wattPoints}>{isLoading ? "..." : WattPoints}</Text>
+                            <Text style={styles.wattPointsText}>watt points</Text>
+                        </View>
+                        
+                        <View style={styles.familyRankingPreview}>
+                            <Text style={styles.familyRankingTitle}>Leaderboard</Text>
+
+                            <View style={styles.familyAvatars}>
+                                {leaderboard.slice(0, 5).map((user, index) => (
+                                    <Image 
+                                        key={user.id}
+                                        source={{ uri: user.avatar }} 
+                                        style={[
+                                            styles.familyAvatar, 
+                                            { marginLeft: index === 0 ? 0 : -15, zIndex: 5 - index }, 
+                                            user.isCurrentUser ? { borderWidth: 2, borderColor: "#0d3b66" } : {}
+                                        ]} 
+                                    />
+                                ))}
+                            </View>
+                        </View>
+                    </View>
+                </ImageBackground>
+            </TouchableOpacity>
+
+            {/* Household Leaderboard Modal */}
+            <HouseholdLeaderboardScreen 
+                visible={showLeaderboard}
+                onClose={() => setShowLeaderboard(false)}
+                householdId={householdId}
+                currentUserWattPoints={WattPoints}
+                API_URL={API_URL}
+            />
+
+            {/* Rooms */}
+            <View style={styles.roomGrid}>
+                {isLoadingRooms ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#8B5CF6" />
+                        <Text style={styles.loadingText}>Loading rooms...</Text>
+                    </View>
+                ) : (
+                    rooms.length > 0 ? (
+                        rooms.map((room, index) => (
+                            <TouchableOpacity 
+                                key={index} 
+                                style={[styles.roomCard, { backgroundColor: room.bgColor }]} 
+                                onPress={() => handleRoomPress(room)}
+                            >
+                                <Text style={styles.roomText}>{room.name}</Text>
+                                {roomEnergyData[room.id] && (
+                                    <View style={styles.roomEnergyIndicator}>
+                                        <Ionicons name="flash-outline" size={20} color="#333" />
+                                        <Text style={styles.roomEnergyText}>
+                                            {roomEnergyData[room.id].energy_consumed?.toFixed(1)} kWh
+                                        </Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        <Text style={[styles.noContentText, {color: textColor}]}>No rooms found. Please set up your home.</Text>
+                    )
+                )}
+            </View>
+
+
         </ScrollView>
     );
 }
@@ -512,13 +553,13 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
     },
     greeting: {
-        fontSize: Platform.OS==="web" ? 60 : 30,
+        fontSize: Platform.OS==="web" ? 46 : 30,
     },
     boldText: {
         fontWeight: "bold",
     },
     weatherText: {
-        fontSize: Platform.OS==="web" ? 20 : 15,
+        fontSize: Platform.OS==="web" ? 30 : 15,
         color: "#777",
     },
     tempControl: {
@@ -575,7 +616,7 @@ const styles = StyleSheet.create({
         position: "relative"
     },
     roomText: {
-        fontSize: 24,
+        fontSize: 35,
         fontWeight: "bold",
     },
     roomEnergyIndicator: {
@@ -591,7 +632,7 @@ const styles = StyleSheet.create({
     },
     roomEnergyText: {
         marginLeft: 5,
-        fontWeight: "500",
+        fontWeight: "800",
     },
     loadingContainer: {
         flex: 1,
@@ -611,7 +652,7 @@ const styles = StyleSheet.create({
     },
     // Energy Insights Styles
     insightsButton: {
-        backgroundColor: "#6A5AE0",
+        backgroundColor: "blue",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -627,7 +668,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     insightsPanel: {
-        backgroundColor: "#fff",
+        backgroundColor: "#ade8f4",
         padding: 15,
         borderRadius: 10,
         marginTop: 15,
@@ -762,5 +803,53 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 24,
         fontWeight: "bold",
+    },
+
+    weatherCard: {
+        width: '100%',
+        height: 300,
+        marginTop: 20,
+        borderRadius: 15,
+        overflow: 'hidden',
+    },
+    weatherCardBackground: {
+        width: '100%',
+        height: '100%',
+    },
+    weatherCardContent: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+    },
+    weatherIconTemp: {
+        alignItems: 'center',
+        marginRight: 15,
+    },
+    weatherIcon: {
+        width: 80,
+        height: 80,
+    },
+    weatherTemp: {
+        color: 'white',
+        fontSize: 38,
+        fontWeight: 'bold',
+        marginRight: 25,
+        marginLeft: 25
+    },
+    weatherDetails: {
+        flex: 1,
+    },
+    weatherCity: {
+        color: 'white',
+        fontSize: 40,
+        fontWeight: 'bold',
+        marginBottom: 5,
+        marginRight: 25
+    },
+    weatherDescription: {
+        color: 'white',
+        fontSize: 29,
+        textTransform: 'capitalize',
     }
 });

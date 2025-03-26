@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5003'; // Replace with your actual API URL
+const API_URL = 'https://backend-1-y12u.onrender.com'; // Replace with your actual API URL
 
 export default function HousesScreen() {
     const navigation = useNavigation();
@@ -25,7 +25,7 @@ export default function HousesScreen() {
 
     const fetchUserInfo = async () => {
         try {
-            const role = await AsyncStorage.getItem('user_role');
+            const role = await AsyncStorage.getItem('role');
             if (role) {
                 setUserRole(role);
             }
@@ -90,6 +90,7 @@ export default function HousesScreen() {
         const householdId = house.household_id;
         
         // Save selected house to AsyncStorage
+        await AsyncStorage.setItem('houseId', houseId);
         await AsyncStorage.setItem('householdId', houseId);
         await AsyncStorage.setItem('house_name', house.name);
         
@@ -220,7 +221,7 @@ export default function HousesScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.headerTitle}>My Houses</Text>
 
             {loading ? (
@@ -351,7 +352,7 @@ export default function HousesScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -362,10 +363,10 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 54,
         fontWeight: '700',
         color: '#111827',
-        marginBottom: 20,
+        marginBottom: 90,
     },
     row: {
         flexDirection: 'row',
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
         padding: 12, // Reduced from 16
         justifyContent: 'center',
         alignItems: 'center',
-        width: '40%', // Reduced from 45%
+        width: '30%', // Reduced from 45%
         minWidth: 120, // Reduced from 150
         aspectRatio: 1.2, // Changed from 1 (slightly less square)
         marginBottom: 12, // Reduced from 15

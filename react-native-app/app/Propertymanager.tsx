@@ -6,8 +6,8 @@ import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated'
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Clipboard from '@react-native-clipboard/clipboard';
-const API_URL = 'http://localhost:5003'; // Replace with your actual API URL
+//import Clipboard from '@react-native-clipboard/clipboard';
+const API_URL = 'https://backend-1-y12u.onrender.com'; // Replace with your actual API URL
 const { width } = Dimensions.get('window');
 const isSmallDevice = width < 375;
 const CARD_GAP = Platform.OS === 'web' ? 16 : 8;
@@ -163,10 +163,14 @@ export default function PropertyManagerScreen() {
         return;
       }
       
-      // Call the delete house API
-      const response = await axios.post(`${API_URL}/delete_house`, {
-        manager_id: userId,
-        house_id: property.id
+      console.log('Attempting to delete property:', property.id);
+      
+      // Call the delete house API - Fixed implementation
+      const response = await axios.delete(`${API_URL}/delete_house`, {
+        data: {  // Use 'data' property to send body with DELETE request
+          manager_id: userId,
+          house_id: parseInt(property.id, 10)
+        }
       });
       
       console.log('Delete house response:', response.data);
@@ -201,14 +205,14 @@ export default function PropertyManagerScreen() {
       setDeleteLoading(false);
     }
   };
-
+    
   const handleSelectProperty = async (property) => {
     try {
       setSelectedProperty(property.id);
       
       // Save selected house to AsyncStorage
       await AsyncStorage.setItem('householdId', property.id);
-      await AsyncStorage.setItem('name', property.name);
+      await AsyncStorage.setItem('property_name', property.name);
       await AsyncStorage.setItem('hid', property.hid || property.id);
     } catch (error) {
       console.error('Error saving property selection:', error);
@@ -312,7 +316,11 @@ export default function PropertyManagerScreen() {
           
           <View style={styles.profileContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('managerSettings')}>
-              <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+               <View style={styles.profileIcon}>
+                                      <Text style={styles.profileText}>
+                                          {userName ? userName.charAt(0).toUpperCase() : "U"}
+                                      </Text>
+                                  </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -851,4 +859,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  profileIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#6200ea", // Change color as needed
+    justifyContent: "center",
+    alignItems: "center",
+},
+profileText: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
+}
 });

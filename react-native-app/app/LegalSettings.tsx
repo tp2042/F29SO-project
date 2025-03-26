@@ -19,7 +19,7 @@ export default function LegalSettings() {
     const textColor = isDarkMode ? "#fff" : "#000";
 
     // API configuration
-    const API_URL = 'http://localhost:5003';
+    const API_URL = 'https://backend-1-y12u.onrender.com';
     // Get user data on component mount
     useEffect(() => {
         const getUserData = async () => {

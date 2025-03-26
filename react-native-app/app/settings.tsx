@@ -7,6 +7,7 @@ import { useTheme } from "./ThemeContext";
 import EnergyTrackingScreen from "./energyTracking";
 import ProfileSettings from "./ProfileSettings";
 import LegalSettings from "./LegalSettings";
+import Constants from 'expo-constants';
 
 export default function SettingsScreen() {
     const navigation = useNavigation();
@@ -36,7 +37,7 @@ export default function SettingsScreen() {
     const settingsOptions = [
         { title: "Profile Settings", subtitle: "Passwords, Personal details, Preferences", screen: "ProfileSettings" },
         { title: "Privacy & Security", subtitle: "Data Privacy, Camera and Microphone Access", screen: "PrivacySettings" },
-        { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "Support" },
+        { title: "Support", subtitle: "Help Center, Community forums, Contact Support", screen: "SupportScreen" },
         { title: "Terms and Privacy", subtitle: "Terms Of Service, Privacy Policy, Delete Account", screen: "LegalSettings" },
     ];
 
@@ -47,7 +48,12 @@ export default function SettingsScreen() {
                     Hey, <Text style={styles.bold}>{userName} 👋</Text>
                 </Text>
                 <TouchableOpacity onPress={() => navigation.navigate(ProfileSettings)}>
-                    <Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />
+                    {/*<Image source={{ uri: "https://randomuser.me/api/portraits/women/45.jpg" }} style={styles.profileImage} />*/}
+                   <View style={styles.profileIcon}>
+                                           <Text style={styles.profileText}>
+                                               {userName ? userName.charAt(0).toUpperCase() : "U"}
+                                           </Text>
+                                       </View>
                 </TouchableOpacity>
             </View>
             <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Settings</Text>
@@ -92,5 +98,18 @@ const styles = StyleSheet.create({
         width:Platform.OS==="web" ? "20%" : '42%', 
         alignItems: "center", marginVertical: 5 },
     buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-    houseId: { color: "gray", marginTop: 10 }
+    houseId: { color: "gray", marginTop: 10 },
+    profileIcon: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: "#6200ea", // Change color as needed
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    profileText: {
+        color: "#fff",
+        fontSize: 24,
+        fontWeight: "bold",
+    }
 });
